@@ -1,0 +1,12 @@
+[Service]
+ExecStart=/usr/bin/node --harmony {{app_path}}/bin/www.js
+Restart=always
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier={{app_user}}
+User={{app_user}}
+Group={{app_user}}
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

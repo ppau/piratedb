@@ -1,0 +1,14 @@
+{
+  "{{ node_env }}": {
+    "transport": "sendmail",
+    "from": "{{ from_email }}",
+    "options": {
+      "path": "/usr/sbin/sendmail",
+      "args": ["-t"]
+    },
+    "context": {
+      "piratedbPublicUrl": "{{ piratedb_public_url }}",
+      "wwwPublicUrl": "{{ www_public_url }}"
+    }
+  }
+}

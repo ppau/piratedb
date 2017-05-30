@@ -1,0 +1,13 @@
+#!/bin/bash
+export ACCEPTANCE_EMAIL="admin"
+export ACCEPTANCE_PASSWORD="password"
+
+cd /vagrant
+sudo su postgres -c "psql -U postgres -c 'DROP DATABASE IF EXISTS piratedb;'" && \
+sudo su postgres -c "psql -U postgres -c 'DROP DATABASE IF EXISTS piratedb_test;'" && \
+sudo su postgres -c "psql -U postgres -c 'DROP ROLE IF EXISTS piratedb;'" && \
+sudo su postgres -c "psql -U postgres -c 'CREATE DATABASE piratedb;'" && \
+sudo su postgres -c "psql -U postgres -c 'CREATE DATABASE piratedb_test;'" && \
+sudo su postgres -c "psql -U postgres -c \"CREATE USER piratedb WITH PASSWORD 'piratedb';\"" && \
+sudo su postgres -c "psql -U postgres -c 'GRANT ALL PRIVILEGES ON DATABASE piratedb to piratedb;'" && \
+sudo su postgres -c "psql -U postgres -c 'GRANT ALL PRIVILEGES ON DATABASE piratedb_test to piratedb;'"

@@ -1,0 +1,15 @@
+- name: "set locale to {{ locale }}"
+  become: true
+  locale_gen: name={{ locale }} state=present
+
+- name: Install packages
+  action: apt pkg={{item}} state=installed
+  become: true
+  with_items:
+   - htop
+   - git
+   - mercurial
+   - build-essential
+   - redis-server
+   - sass
+   - unattended-upgrades

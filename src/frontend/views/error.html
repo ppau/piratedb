@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Error</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="/stylesheets/style.css">
+
+	<%- include partials/favicon.html %>
+
+</head>
+<body>
+	<div class="container">
+		<h1><%= message %> </h1>
+		<h2><%= error.status %></h2>
+		<pre><%= error.stack %></pre>
+	</div>
+</body>
+</html>

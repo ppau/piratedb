@@ -1,0 +1,678 @@
+/* NOTE: This is the stylesheet for the form section ONLY. Progress bar styles are in style.css */
+
+/* --------------------------------------------------------------------------------------
+
+   FORM BACKGROUND STYLES
+
+-------------------------------------------------------------------------------------- */
+
+fieldset {
+  @include fill-parent();
+  @include clearfix();
+  @include pad(0px 0px 32px 0px);
+
+  border: none;
+  background-color: $blue-light;
+  color: $blue-darker;
+
+  .form-body {
+    @include pad(0 36px default 36px);
+
+    @include media($mobile) {
+      @include pad(0 25px default 25px);
+    }
+  }
+
+  .field-group { /* A group of information under one heading */
+    @include span-columns(6);
+    @include pad(15px 0px 20px 0px);
+    width: 100%;
+
+    @include media($mobile) {
+      @include pad(10px 0px 13px 0px);
+    }
+  }
+}
+
+.form-container { /* Form container width */
+  @include media($desktop) {
+    max-width: 800px;
+  }
+
+  @include media($mobile) {
+    @include pad();
+  }
+
+  margin: 10px auto;
+}
+
+/* --------------------------------------------------------------------------------------
+
+   FORM TYPOGRAPHY AND FORM INPUTS
+
+-------------------------------------------------------------------------------------- */
+
+.form-container {
+
+  h3 {
+    font-size: 16px;
+    line-height: 19.2px;
+    margin: 0;
+  }
+
+  fieldset {
+    padding-bottom: 32px;
+  }
+
+  .form-title { /* Large heading with blue background at the top of the form */
+    background: $blue-darker;
+    color: $white;
+    font-size: 24px;
+    font-weight: bold;
+    height: 76px;
+    line-height: 76px;
+    margin-bottom: 10px;
+    padding: 24px 36px;
+
+    @include media($mobile) {
+      font-size: 20px;
+      height: 65px;
+      line-height: 65px;
+      margin-bottom: 0;
+      padding-left: 25px;
+    }
+  }
+
+  .sub-title { /* Internal form heading, above the divider line */
+    border-bottom: 1px solid $blue;
+    font-size: 20px;
+    line-height: 26px;
+    margin-bottom: 0;
+    padding-bottom: 6px;
+
+    @include media($mobile) {
+      font-size: 16px;
+      line-height: 20px;
+    }
+  }
+
+  .sub-title span {
+    @include media($mobile) {
+      font-size: 16px;
+      line-height: 20px;
+    }
+  }
+
+  .sub-description { /* Smaller description in italics, under the divider line */
+    font-size: 14px;
+    font-style: italic;
+    line-height: 20px;
+    padding-top: 6px;
+
+    @include media($mobile) {
+      font-size: 11px;
+      line-height: 16px;
+    }
+  }
+
+  .heading { /* .heading is the combination of .sub-title + .sub-description */
+    @include span-columns(12);
+
+    padding-top: 20px;
+    padding-bottom: 10px;
+  }
+
+  span { /* Mobile size of body text */
+    @include media($mobile) {
+      font-size: 13px;
+    }
+  }
+
+  a { /* Inline link styles */
+    color: $blue-darker;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+
+  a:hover {
+    color: #4da8d4;
+  }
+
+  label {
+    font-weight: normal;
+    margin-bottom: 0;
+    font-size: 14px;
+
+    @include media($mobile) {
+      font-size: 13px;
+    }
+  }
+}
+
+h3 {
+  margin: 0;
+}
+
+/* Red asterisks */
+
+.mandatoryField {
+  color: $red;
+  font-size: 14px;
+  font-weight: bold;
+
+  @include media($mobile) {
+    font-size: 13px;
+  }
+}
+
+input[type="radio"] {
+  margin-top: 15px;
+}
+
+/* Country and state dropdowns */
+
+select {
+  width: 100%;
+  border-radius: 0 !important;
+  background-color: white;
+  height: 2.6em;
+  font-size: 14px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: border-color 150ms ease;
+
+  @include media($mobile) {
+    font-size: 13px;
+  }
+}
+
+select::-ms-expand { /* for IE 11 */
+  display: none;
+}
+
+input[type="text"], input[type="password"], select {
+  max-width: 350px;
+}
+
+/* --------------------------------------------------------------------------------------
+
+   MEMBERSHIP TYPE INFO BOX
+
+-------------------------------------------------------------------------------------- */
+
+.info-box span {
+  @include media($mobile) {
+    font-size: 11px;
+  }
+}
+
+.info-box {
+  &.info-box-warning {
+    border: 2px solid $orange;
+
+    .info-heading {
+      border-bottom: 1px solid $orange;
+      color: $orange;
+      a {
+        color: $orange;
+        &:hover {
+          color: lighten($orange, 10%);
+          .circled {
+            background: $orange;
+          }
+        }
+        .circled { /* Question mark symbol */
+          border-radius: 100%;
+          background: $orange;
+        }
+      }
+    }
+  }
+
+  @include span-columns(12);
+  background-color: $white;
+  border: 2px solid $green;
+  margin-bottom: 25px;
+  padding: 0 15px;
+
+  .info-heading {
+    border-bottom: 1px solid $green;
+    color: $green;
+    font-weight: bold;
+    padding-bottom: 5px;
+
+    @include media($mobile) {
+      padding-top: 10px;
+      font-size: 13px;
+    }
+
+    h3 {
+      @include pad(default 0px 0px 0px);
+      margin: 0px;
+    }
+
+    a {
+      color: $green;
+      cursor: pointer;
+      font-size: 10px;
+      font-style: italic;
+      font-weight: normal;
+
+      &:hover {
+        color: #9be29b;
+        .circled {
+          background: #8bd68b;
+        }
+      }
+
+      @include media($mobile) {
+        font-size: 9px;
+      }
+
+      .circled { /* Question mark symbol */
+        border-radius: 100%;
+        background: $green;
+        text-align: center;
+        padding-left: 3px;
+        padding-right: 4px;
+        color: $white;
+        font-size: 8px;
+      }
+    }
+  }
+
+  .info-body {
+    font-size: 13px;
+    padding: 15px 0;
+
+    @include media($mobile) {
+      font-size: 11px;
+      line-height: 16px;
+    }
+
+    ul {
+      list-style-type: inherit;
+      margin-left: 17px;
+      padding-bottom: 10px;
+      padding-top: 5px;
+    }
+
+    li {
+      margin-top: 5px;
+    }
+
+    strong {
+      color: $green;
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------------------
+
+   MEMBERSHIP EXPLANATION MODAL
+
+-------------------------------------------------------------------------------------- */
+
+.ReactModal__Overlay.ReactModal__Overlay--after-open { /* This prevents the progress bar from being above the modal. */
+  z-index: 900000;
+  overflow: scroll;
+}
+
+.ReactModal__Content.ReactModal__Content--after-open {
+  max-width: 360px;
+  margin: 10px !important;
+  top: 0 !important;
+  left: 10px !important;
+  right: 10px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  transform: none !important;
+}
+
+Modal {
+  margin-top: 30px;
+}
+
+.modal-header {
+  background: linear-gradient(-180deg, #F5F5F7, #E6E6E7);
+  max-width: 360px;
+  padding-top: 7px;
+  padding-left: 7px;
+  padding-right: 7px;
+  z-index: 9000;
+  opacity: .99;
+
+  .close-button {
+    height: 24px;
+    float: left;
+    padding: 10px;
+  }
+
+  .box-header {
+    border-bottom: 1px solid #CCC;
+    padding-bottom: 19px;
+    text-align: center;
+    margin-top: -20px;
+
+    h2 {
+      color: #000;
+      font-size: 16px;
+      line-height: 20px;
+      margin-bottom: 0;
+
+      @include media($mobile) {
+        font-size: 17px;
+      }
+    }
+
+    .logo {
+      height: 65px;
+    }
+  }
+}
+
+.box-column { /* This is the explanation row for each membership type. */
+  background: #F5F5F5;
+  border-bottom: 1px solid #ECEBEB;
+  max-width: 360px;
+  padding: 0 15px;
+  text-align: center;
+
+  h3 {
+    color: #0073AE;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 22px;
+    margin-bottom: 0;
+    padding-top: 15px;
+
+    @include media($mobile) {
+      font-size: 14px;
+    }
+  }
+
+  h4 {
+    color: #008BC0;
+    font-size: 12px;
+    font-weight: normal;
+    line-height: 19px;
+    margin-bottom: 0;
+    padding-bottom: 15px;
+
+    @include media($mobile) {
+      font-size: 13px;
+    }
+  }
+}
+
+.clickable { /* Transforms cursor into a hand when you hover on the cross */
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------------------
+
+   INFO BOX AT THE TOP OF THE PAGE
+
+-------------------------------------------------------------------------------------- */
+
+.reminder {
+  background: $white;
+  border: 3px solid $blue;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  margin-top: 25px;
+
+  > * {
+    display: inline-block;
+  }
+
+  .reminder-text {
+    height: 45px;
+    padding-left: 10px;
+    width: 80%;
+    font-size: 13px;
+    vertical-align: middle;
+    display: table-cell;
+  }
+
+  img {
+    width: 48px;
+    float: left;
+
+    @include media($mobile) {
+      display: none;
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------------------
+
+   TOP ERROR VALIDATION BOX
+
+-------------------------------------------------------------------------------------- */
+
+hr {
+  border-bottom: 1px solid $blue;
+  margin: 0;
+}
+
+.validationErrors {
+  background: $white;
+  border: 3px solid $red;
+  padding: 8px 8px;
+  margin: 15px 0px;
+
+  > * {
+    display: inline-block;
+  }
+
+  p:last-child, span:last-child {
+    margin-bottom: 0 !important;
+  }
+
+  .validationErrors-text {
+    padding-left: 10px;
+  }
+
+  .validationErrors-text span {
+    color: $red;
+    font-weight: bold;
+    padding-bottom: 10px;
+    font-size: 15px;
+  }
+
+  .errors {
+    font-size: 13px;
+    color: $red;
+    margin-left: 17px;
+
+    @include media($mobile) {
+      font-size: 11px;
+    }
+  }
+
+  img {
+    width: 48px;
+    float: left;
+  }
+}
+
+/* --------------------------------------------------------------------------------------
+
+   INLINE VALIDATION
+
+-------------------------------------------------------------------------------------- */
+
+.invalid {
+  > input {
+    border-color: #cc4756 !important;
+  }
+  > select {
+    border-color: #cc4756 !important;
+  }
+  .errors {
+    display: block;
+    color: #CC4756;
+    font-size: 13px;
+    line-height: 16px;
+  }
+}
+
+.invalid b { /* Makes checkbox declaration red on error */
+  color: $red;
+}
+
+/* --------------------------------------------------------------------------------------
+
+   BOTTOM NAVIGATION
+
+-------------------------------------------------------------------------------------- */
+
+.navigation {
+  @include span-columns(12);
+
+  > * {
+    display: inline-block;
+  }
+
+  button {
+    background-color: $blue-darker;
+    border-radius: 0;
+    color: $white;
+    margin-right: 6px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+
+    @include media($mobile) {
+      font-size: 13px;
+    }
+  }
+
+  button:hover {
+    background-color: #4da8d4;
+  }
+
+  p {
+    height: 40px;
+    line-height: 40px;
+    margin: 0;
+
+    @include media($mobile) {
+      font-size: 13px;
+    }
+  }
+}
+
+/* --------------------------------------------------------------------------------------
+
+   CONFIRM PAGE
+
+-------------------------------------------------------------------------------------- */
+
+.declaration { /* This class has been applied to both the declaration box and the check details box */
+  float: left;
+  width: 100%;
+  background: $white;
+  border: 3px solid $blue;
+  padding: 20px 25px;
+  font-size: 13px;
+  margin-bottom: 25px;
+  margin-top: 10px;
+
+  > * {
+    display: inline-block;
+  }
+
+  .declaration-text {
+    color: #0073AE;
+  }
+
+  img {
+    width: 48px;
+    float: left;
+  }
+
+  @include media($mobile) {
+    font-size: 13px;
+  }
+}
+
+#checkbox_declaration {
+  margin-bottom: 15px;
+}
+
+/* --------------------------------------------------------------------------------------
+
+   PAYMENT PAGE
+
+-------------------------------------------------------------------------------------- */
+
+#payments {
+  padding-top: 0 !important;
+}
+
+.info-box.payment {
+  margin-bottom: 15px;
+}
+
+.contribution-amount {
+
+  .currency {
+    background: $blue-darker;
+    color: $white;
+    float: left;
+    font-weight: bold;
+    height: 40px;
+    line-height: 40px;
+    padding-left: 3px;
+    vertical-align: middle;
+    width: 50px;
+  }
+
+  input[type="text"], input[type="password"] {
+    border-bottom-color: $blue;
+    border-radius: 0;
+    border-right-color: $blue;
+    border-top-color: $blue;
+    margin: 0;
+    vertical-align: middle;
+    width: 120px;
+    margin-bottom: 30px;
+  }
+}
+
+/* --------------------------------------------------------------------------------------
+
+   PRIVACY POLICY LINK
+
+-------------------------------------------------------------------------------------- */
+.footer {
+  font-size: 14px;
+  font-style: italic;
+  line-height: 19px;
+  text-align: center;
+}
+
+.footer a {
+  color: #0073ae;
+  padding-bottom: 30px;
+  text-decoration: underline;
+
+  @include media($mobile) {
+    font-size: 13px;
+  }
+}
+
+.footer a:hover {
+  color: #008bc0;
+}
+
+.form-container {
+  @include media($mobile) {
+    margin-bottom: 0;
+  }
+}
+
+
+
+
+

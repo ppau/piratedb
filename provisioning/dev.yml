@@ -1,0 +1,17 @@
+---
+- hosts: all
+  gather_facts: no
+  become: true
+  pre_tasks:
+    # ubuntu 16.04 server images are broken with ansible because they're missing python2 & aptitude
+    - name: 'install python2'
+      raw: apt-get -y install python-minimal aptitude
+      become: true
+    - setup: # now we can gather_facts
+
+  roles:
+    - { role: system-packages }
+    - { role: nodesource.node }
+    - { role: sendmail}
+    - { role: postgres, db_names: ["piratedb", "piratedb_test"] }
+    - { role: vagrant }

@@ -1,0 +1,7 @@
+---
+nodejs_version: '7.x'
+locale: 'en_AU.UTF-8'
+db_names:
+  - piratedb
+db_user: piratedb
+db_password: piratedb

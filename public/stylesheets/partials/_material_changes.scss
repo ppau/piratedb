@@ -1,0 +1,574 @@
+
+.mdl-layout {
+  z-index: 100001 !important;
+}
+
+header {
+  .mdl-layout__header-row {
+    // correct colours for PPAU
+    padding: 0 80px 0 80px;
+    background-color: #fff;
+  }
+
+  .mdl-layout-title {
+    margin-right: 16px;
+  }
+
+  .mdl-layout__header-row, .mdl-layout__header-row-tabs {
+    .mdl-navigation__link {
+      color: rgb(66, 66, 66);
+      padding-top: 1px;
+      line-height: 60px;
+      &.mdl-button--icon {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+    }
+  }
+
+  .mdl-layout__header-row-tabs {
+    .mdl-navigation {
+      .mdl-navigation__link {
+        color: rgb(66, 66, 66);
+        border-bottom: 3px solid transparent;
+        padding-top: 1px;
+        padding-left: 16px;
+        padding-right: 16px;
+        line-height: 60px;
+        @media (max-width: 1024px) {
+          line-height: 54px;
+        }
+
+        &:hover, &.is-active {
+          border-bottom: 3px solid $pcc;
+          text-decoration: none;
+        }
+      }
+    }
+  }
+
+  &.mdl-layout__header {
+    color: rgba(0, 0, 0, 0.8);
+
+    .mdl-layout__drawer-button {
+      color: rgba(0, 0, 0, 0.8);
+      background-color: #fff;
+      i {
+        color: rgba(0, 0, 0, 0.5);
+      }
+    }
+  }
+}
+
+header, .mdl-layout__drawer {
+  #logo {
+    // Render our awesome logo
+    margin: 0 0 0 0;
+    display: block;
+    background: url(../images/logo_signet.svg) no-repeat;
+    background-size: 55px;
+    height: 56px;
+    font-family: 'GehenSansCondensed';
+    font-size: 29px;
+    padding: 1px 0 0 60px;
+    color: $pc;
+    text-decoration: none;
+    font-weight: bold;
+    line-height: 29px;
+
+    &:hover, &:active {
+      color: $pcc;
+    }
+
+    span {
+      color: #000;
+      font-weight: normal;
+      font-family: 'GehenSans';
+      line-height: 33px;
+    }
+
+    .country {
+      font-family: 'GehenSans';
+      display: block;
+      margin-top: -6px;
+      color: #333;
+      font-size: .65em;
+    }
+  }
+}
+
+// PirateDB only
+.mdl-layout__drawer {
+  .mdl-navigation {
+    padding-top: 0 !important;
+  }
+}
+
+/*
+  Drawer logo positioning section
+*/
+
+.mdl-layout__drawer {
+  background-color: #fff !important;
+  #drawer_close_button {
+    margin: 16px 0 0 24px;
+    position: absolute;
+    z-index: 1000;
+    &:hover, &:focus {
+      color: rgb(97, 97, 97);
+    }
+  }
+  .mdl-layout-title {
+    margin: 4px 40px 0 40px;
+  }
+}
+
+@media (max-width: 840px) {
+  .mdl-layout {
+    .mdl-layout__header-row {
+      padding-left: 50px;
+    }
+    .mdl-layout__drawer {
+      #drawer_close_button {
+        margin: 16px 0 0 8px;
+      }
+      .mdl-layout-title {
+        margin: 0px 24px 0 8px;
+      }
+    }
+  }
+}
+
+.mdl-layout__drawer {
+  background-color: #fff;
+
+  &.is-visible {
+    width: auto;
+  }
+
+  span.mdl-layout-title {
+    padding: 0 40px;
+  }
+
+  ul.mdl-navigation {
+    padding: 0;
+  }
+
+  .mdl-navigation {
+    ul.sub-menu {
+      padding: 0;
+      li {
+        hr {
+          margin: 0 32px;
+          color: #eee;
+        }
+        a {
+          padding-left: 32px;
+        }
+        list-style: none;
+      }
+    }
+
+    hr {
+      &.mdl-navigation__link {
+        padding: 0;
+        margin: 4px 0;
+        color: #eee;
+        border-bottom: none;
+        height: 1px !important;
+        border-top: 1px solid #ccc;
+      }
+    }
+
+    .mdl-navigation__link {
+      padding: 12px 16px;
+      font-weight: 500;
+      font-family: "Roboto-Medium", "Roboto", "Helvetica", "Arial", sans-serif;
+      color: #000;
+
+      &.is-active {
+        background-color: #CCCCCC;
+      }
+
+      i.fa, i.dashicons, i.material-icons {
+        color: #878787;
+        margin-right: 28px;
+      }
+
+      &.subheading {
+        color: #31409F;
+        font-size: 13px;
+        font-weight: 400;
+        padding: 4px 16px;
+        &:hover {
+          background-color: #fff !important;
+        }
+      }
+
+    }
+
+    .menu-item i._mi {
+      font-size: 1.6em;
+      margin-right: 36px;
+    }
+  }
+}
+
+/*
+  END: Drawer logo positioning section
+*/
+
+#landing {
+  .become-a-member {
+    font-size: 2em;
+  }
+
+  margin: auto 0;
+  #sign-in, #forgotten-password {
+    min-height: 0px;
+    .errors {
+      span {
+        color: #cc4756;
+        margin-bottom: 8px;
+        font-weight: bold;
+      }
+    }
+    .mdl-card__title {
+      padding-bottom: 0;
+      h2.mdl-card__title-text {
+        margin: 0 0 16px 0;
+      }
+    }
+    .mdl-card__supporting-text {
+      width: 100%;
+      padding: 0 16px;
+    }
+
+    .mdl-card__actions {
+    }
+
+    input {
+      margin-bottom: 4px;
+    }
+
+    .invalid {
+      label {
+        color: #cc4756;
+      }
+    }
+    span.errors {
+      display: block;
+      height: 20px;
+    }
+  }
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-centre, .text-center {
+  text-align: center;
+}
+
+.pull-right {
+  float: right;
+}
+
+.mdl-layout__content {
+  display: flex;
+  flex-flow: column;
+  background-color: #fcfcfc;
+
+  > div {
+    flex-basis: auto;
+    flex-grow: 1;
+    flex-shrink: 1;
+    width: 100%;
+  }
+}
+
+.mdl-layout__header {
+  display: flex !important;
+}
+
+footer {
+  clear: both;
+  flex-basis: auto;
+  flex-grow: 1;
+  flex-shrink: 0;
+  max-height: 120px;
+
+  a {
+    &:hover, &:active {
+      color: #ddd;
+    }
+  }
+}
+
+.cc-credit {
+  font-size: 12px;
+  color: #aaa;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 8px;
+  background-color: rgba(0, 0, 0, .3);
+}
+
+.mdl-dl {
+  padding-bottom: 12px;
+  dt {
+    padding: 4px 18px 4px 18px;
+  }
+  dd {
+    padding-left: 18px;
+  }
+  dt:after {
+    content: ':';
+  }
+}
+
+.mdl-card {
+  dl {
+    margin-top: 0;
+    color: rgb(51, 51, 51);
+    font-size: 13px;
+  }
+}
+
+.mdl-card-account-details {
+  margin-bottom: 16px;
+  min-height: inherit;
+  width: auto;
+  .mdl-card__supporting-text {
+    padding-top: 0;
+  }
+}
+
+
+.mdl-dialog {
+  @media (min-width: 720px) {
+    width: 640px;
+  }
+  .mdl-dialog__title {
+    font-size: 1.8rem;
+  }
+
+  .mdl-dialog__content {
+    margin: 0;
+
+    label {
+      font-size: 1.1em;
+      color: #000;
+      margin-bottom: 8px;
+    }
+
+    select {
+      margin-bottom: 0;
+    }
+
+    .errors {
+      margin-bottom: 8px;
+    }
+  }
+
+  .mdl-dialog__actions {
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-justify-content: flex-end;
+    justify-content: flex-end;
+  }
+}
+
+.nc {
+  .nc-bio {
+    @media (min-width: 840px) {
+      margin-left: 36px;
+    }
+    h4 {
+      margin-bottom: 8px;
+    }
+    h5 {
+      margin-top: 0;
+    }
+  }
+
+  div {
+    padding: 0 0 0 0;
+    h5 {
+      margin: 40px 0 8px;
+    }
+    p {
+      color: #9e9e9e;
+      margin-bottom: 8px;
+    }
+  }
+
+  img {
+    float: left;
+    height: 100px;
+    max-width: 200px;
+    margin-top: 24px;
+    border-radius: 50%;
+  }
+}
+
+
+.account-renew-membership {
+  h5 {
+    margin: 40px 0 8px;
+  }
+}
+
+iframe {
+  border: 0;
+}
+
+
+.pagination-controls {
+  .mdl-button {
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50%;
+    border-top-left-radius: 50%;
+    border-top-right-radius: 50%;
+    min-width: 32px;
+    height: 32px;
+    line-height: 28.5px;
+    padding-left: 0px;
+    padding-right: 0px;
+  }
+}
+
+.no-padding {
+  padding: 0;
+}
+
+.no-margin {
+  margin: 0;
+}
+
+.mdl-button--accent-blue {
+    &.mdl-button--fab, &.mdl-button--colored {
+    color: #fff;
+    background-color: #3f51b5 !important;
+  }
+}
+
+.mdl-button--accent-green {
+    &.mdl-button--fab, &.mdl-button--colored {
+    color: #fff;
+    background-color: #3fb54a;
+  }
+}
+
+.mdl-button--accent-green-important {
+    &.mdl-button--fab, &.mdl-button--colored {
+    color: #fff;
+    background-color: #3fb54a !important;
+  }
+}
+
+// Action mdl-buttons and fabs
+@mixin colored-mdl-button($font-colour, $background-colour) {
+  color: $font-colour !important;
+  background-color: $background-colour;
+
+  &:hover {
+    background-color: darken( $background-colour, 5% );
+  }
+
+  &:focus:not(:active) {
+    background-color: $background-colour;
+  }
+
+  &:active {
+    background-color: lighten( $background-colour, 10% );
+  }
+}
+.mdl-button-primary { @include colored-mdl-button(#fff, $c-primary) }
+.mdl-button-success { @include colored-mdl-button(#fff, $c-success) }
+.mdl-button-info { @include colored-mdl-button(#fff, $c-info) }
+.mdl-button-warning { @include colored-mdl-button(#fff, $c-warning) }
+.mdl-button-danger { @include colored-mdl-button(#fff, $c-danger) }
+.mdl-button-boring { @include colored-mdl-button(#fff, $c-boring) }
+
+
+
+// Raised buttons
+@mixin colored-mdl-button--raised($font-colour, $background-colour) {
+  background: $background-colour;
+
+  &:active {
+    background-color: lighten($background-colour, 10%);
+  }
+
+  &:focus:not(:active) {
+    background-color: lighten($background-colour, 10%);
+  }
+
+  &.mdl-button--colored {
+    background: $background-colour;
+    color: $font-colour;
+
+    &:hover {
+      background-color: $background-colour;
+    }
+
+    &:active {
+      background-color: lighten($background-colour, 10%);
+    }
+
+    &:focus:not(:active) {
+      background-color: lighten($background-colour, 10%);
+    }
+
+    & .mdl-ripple {
+      background: $background-colour;
+    }
+  }
+}
+.mdl-button-primary--raised { @include colored-mdl-button--raised(#fff, $c-primary) }
+.mdl-button-success--raised { @include colored-mdl-button--raised(#fff, $c-success) }
+.mdl-button-info--raised { @include colored-mdl-button--raised(#fff, $c-info) }
+.mdl-button-warning--raised { @include colored-mdl-button--raised(#fff, $c-warning) }
+.mdl-button-danger--raised { @include colored-mdl-button--raised(#fff, $c-danger) }
+
+// FABs
+@mixin colored-mdl-button--fab($font-colour, $background-colour) {
+  background: $background-colour;
+
+  &:active {
+    background-color: lighten($background-colour, 10%);
+  }
+
+  &:focus:not(:active) {
+    background-color: lighten($background-colour, 10%);
+  }
+
+  &.mdl-button--colored {
+    background: $background-colour;
+    color: $font-colour;
+
+    &:hover {
+      background-color: $background-colour !important;
+    }
+
+    &:focus:not(:active) {
+      background-color: lighten($background-colour, 10%);
+    }
+
+    &:active {
+      background-color: lighten($background-colour, 10%);
+    }
+
+    & .mdl-ripple {
+      background: $background-colour;
+    }
+  }
+}
+.mdl-button-primary--fab { @include colored-mdl-button--fab(#fff, $c-primary) }
+.mdl-button-success--fab { @include colored-mdl-button--fab(#fff, $c-success) }
+.mdl-button-info--fab { @include colored-mdl-button--fab(#fff, $c-info) }
+.mdl-button-warning--fab { @include colored-mdl-button--fab(#fff, $c-warning) }
+.mdl-button-danger--fab { @include colored-mdl-button--fab(#fff, $c-danger) }

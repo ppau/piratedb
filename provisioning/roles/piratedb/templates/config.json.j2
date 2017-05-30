@@ -1,0 +1,18 @@
+{
+  "{{ node_env }}": {
+    "database": {
+      "database": "piratedb",
+      "username": "{{ db_user }}",
+      "password": "{{ db_password }}",
+      "host": "127.0.0.1",
+      "port": 5432,
+      "dialect": "postgres"
+    },
+    "session": {
+      "secret": "{{ session_secret }}"
+    },
+    "www": {
+      "port": 3000
+    }
+  }
+}

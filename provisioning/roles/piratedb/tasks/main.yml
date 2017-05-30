@@ -1,0 +1,70 @@
+- name: create app user group
+  group: name="{{ app_user }}" system=yes
+
+- name: create app user
+  user: name="{{ app_user }}" group="{{ app_user }}" system=yes
+
+#- name: check out app from version control
+#  git: repo="{{ repo_url }}" clone=yes version="{{ git_sha }}" dest="{{ app_path }}" force=yes accept_hostkey=yes
+
+- name: ensure app dir is owner by app user
+  file: path="{{ app_path }}" owner="{{ app_user }}" group="{{ app_user }}" recurse=yes
+
+- name: create logs dir
+  file: path="{{ logs_dir }}" state=directory owner="{{ app_user }}" group="{{ app_user }}"
+
+- name: create pids dir
+  file: path="{{ pids_dir }}" state=directory owner="{{ app_user }}" group="{{ app_user }}"
+
+- name: install pslist
+  apt: name=pslist
+
+- name: install redis
+  apt: name=redis-server
+
+- name: install ruby
+  apt: name=ruby
+
+- name: upload systemd service script
+  template: src=piratedb.service.j2 dest=/lib/systemd/system/piratedb.service mode=0644
+
+- name: upload config
+  template: src=config.json.j2 dest="{{ app_path }}/config/config.json" mode=0600
+
+- name: upload email
+  template: src=email.json.j2 dest="{{ app_path }}/config/email.json" mode=0600
+
+- name: upload stripe
+  template: src=stripe.json.j2 dest="{{ app_path }}/config/stripe.json" mode=0600
+
+- name: upload braintree
+  template: src=braintree.json.j2 dest="{{ app_path }}/config/braintree.json" mode=0600
+
+- name: install npm dependencies, includes build
+  become_user: "{{ app_user}}"
+  command: npm install --production chdir="{{ app_path }}"
+
+- name: run any new migrations
+  become_user: "{{ app_user}}"
+  command: npm run db-migrations chdir="{{ app_path }}"
+  environment:
+    NODE_ENV: 'production'
+
+- name: build stylesheets
+  become_user: "{{ app_user}}"
+  command: npm run stylesheets chdir="{{ app_path }}"
+  environment:
+    NODE_ENV: 'production'
+
+- name: enable service
+  systemd:
+    name: piratedb.service
+    enabled: yes
+    masked: no
+
+- name: restart service
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: piratedb.service
+

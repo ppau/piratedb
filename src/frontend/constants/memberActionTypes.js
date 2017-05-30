@@ -1,0 +1,5 @@
+
+const action = "member."
+export const CHANGE_PASSWORD_PENDING = action + "CHANGE_PASSWORD_PENDING"
+export const CHANGE_PASSWORD_FULFILLED = action + "CHANGE_PASSWORD_FULFILLED"
+export const CHANGE_PASSWORD_REJECTED = action + "CHANGE_PASSWORD_REJECTED"

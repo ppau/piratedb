@@ -1,0 +1,21 @@
+---
+repo_url: https://github.com/ppau/piratedb.git
+git_sha: prerelease
+app_path: /opt/piratedb
+app_user: piratedb
+logs_dir: /var/log/piratedb
+pids_dir: /var/run/piratedb
+node_env: development
+db_password: secret
+session_secret: "i'm a secret teapot"
+
+from_email: "membership@pirateparty.org.au"
+piratedb_public_url: "https://members.pirateparty.org.au"
+www_public_url: "https://pirateparty.org.au"
+
+braintree_merchant_id: "{{ lookup('env', 'BRAINTREE_MERCHANT_ID') }}"
+braintree_public_key: "{{ lookup('env', 'BRAINTREE_PUBLIC_KEY') }}"
+braintree_secret_key: "{{ lookup('env', 'BRAINTREE_SECRET_KEY') }}"
+
+stripe_public_key: "{{ lookup('env', 'STRIPE_PUBLIC_KEY') }}"
+stripe_secret_key: "{{ lookup('env', 'STRIPE_SECRET_KEY') }}"

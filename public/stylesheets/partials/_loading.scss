@@ -1,0 +1,24 @@
+.notlive {
+  width: 100%;
+  text-align: center;
+  padding: 3px;
+  background-color: #ad2b2b;
+  color: white;
+  display: inline-block;
+  position: absolute;
+  z-index: 5000;
+  clear: both;
+}
+
+.layout-notlive {
+  .mdl-layout__header {
+    margin-top: 27px !important;
+  }
+
+  .mdl-layout__drawer-button {
+    top: 27px !important;
+  }
+  .mdl-layout__drawer {
+    padding-top: 27px !important;
+  }
+}

@@ -1,0 +1,31 @@
+- name: Include vars from piratedb
+  include_vars:
+    file: ../../piratedb/defaults/main.yml
+
+#- name: pull app changes from version control
+#  git: repo="{{ repo_url }}" clone=yes version="{{ git_sha }}" dest="{{ app_path }}" force=yes accept_hostkey=yes
+
+- name: ensure app dir is owner by app user
+  file: path="{{ app_path }}" owner="{{ app_user }}" group="{{ app_user }}" recurse=yes
+
+- name: install npm dependencies, includes build
+  become_user: "{{ app_user}}"
+  command: npm install --production chdir="{{ app_path }}"
+
+- name: run any new migrations
+  become_user: "{{ app_user}}"
+  command: npm run db-migrations chdir="{{ app_path }}"
+  environment:
+    NODE_ENV: 'production'
+
+- name: build stylesheets
+  become_user: "{{ app_user}}"
+  command: npm run stylesheets chdir="{{ app_path }}"
+  environment:
+    NODE_ENV: 'production'
+
+- name: restart service
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: piratedb.service

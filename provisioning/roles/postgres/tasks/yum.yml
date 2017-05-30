@@ -1,0 +1,5 @@
+- name: install postgres
+  yum: name=postgresql-server
+
+- name: install psycopg2
+  yum: name=python-psycopg2

@@ -1,0 +1,18 @@
+{
+  "development": {
+    "database": {
+      "database": "piratedb",
+      "username": "piratedb",
+      "password": "piratedb",
+      "host": "127.0.0.1",
+      "port": 5432,
+      "dialect": "postgres"
+    },
+    "session": {
+      "secret": "SECRET"
+    },
+    "www": {
+      "port": 3000
+    }
+  }
+}

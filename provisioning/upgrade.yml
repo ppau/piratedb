@@ -1,0 +1,13 @@
+---
+- hosts: all
+  gather_facts: no
+  become: true
+  pre_tasks:
+    # ubuntu 16.04 server images are broken with ansible because they're missing python2 & aptitude
+    - name: 'install python2'
+      raw: apt-get -y install python-minimal aptitude
+      become: true
+    - setup: # now we can gather_facts
+
+  roles:
+    - { role: piratedb-upgrade, node_env: production, db_password: "{{ lookup('env','DB_PASSWORD') }}", session_secret: "{{ lookup('env','SESSION_SECRET') }}" }

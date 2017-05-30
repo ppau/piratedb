@@ -1,0 +1,10 @@
+{
+  "development": {
+    "transport": "stub",
+    "from": "membership@pirateparty.org.au",
+    "context": {
+      "piratedbPublicUrl": "http://localhost:3001",
+      "wwwPublicUrl": "https://pirateparty.org.au"
+    }
+  }
+}

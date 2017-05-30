@@ -1,0 +1,7 @@
+{
+  "development": {
+    "braintree_merchant_id": "your_merchant_id",
+    "braintree_public_key": "braintree_public_key",
+    "braintree_secret_key": "braintree_secret_key"
+  }
+}

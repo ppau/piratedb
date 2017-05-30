@@ -1,0 +1,5 @@
+- hosts: all
+  become: yes
+  roles:
+    - { role: sendmail}
+    - { role: postgres, db_names: ["piratedb", "piratedb_test"] }
