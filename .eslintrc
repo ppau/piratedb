@@ -92,7 +92,7 @@
     "jsx-quotes": [2, "prefer-double"],
     "key-spacing": [2, {"beforeColon": false, "afterColon": true}],
     "linebreak-style": [2, "unix"],
-    "max-nested-callbacks": [2, 2],
+    "max-nested-callbacks": [2, 4],
     "new-cap": [1, {"properties": false}],
     "new-parens": 1,
     "newline-after-var": [2, "always"],

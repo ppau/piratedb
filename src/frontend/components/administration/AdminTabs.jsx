@@ -24,12 +24,19 @@ export default class AdminTabs extends Component {
         <Navigation>
           <NavLink to="/admin/dashboard" activeClassName="is-active">Dashboard</NavLink>
           { this.props.auth.user.data.roles.isSecretary ?
-            <NavLink to="/admin/secretary" activeClassName="is-active">Secretary</NavLink>
+            <NavLink to="/admin/secretary" activeClassName="is-active">Members</NavLink>
               : null }
             { this.props.auth.user.data.roles.isTreasurer ?
-            <NavLink to="/admin/treasurer" activeClassName="is-active">Treasurer</NavLink>
+            <NavLink to="/admin/treasurer" activeClassName="is-active">Invoices</NavLink>
+              : null }
+          { this.props.auth.user.data.roles.isSecretary ?
+            <NavLink to="/admin/users" activeClassName="is-active">Users</NavLink>
+              : null }
+          { this.props.auth.user.data.roles.isSecretary ?
+            <NavLink to="/admin/audit" activeClassName="is-active">Audit</NavLink>
               : null }
           <NavLink to="/admin/settings" activeClassName="is-active">Settings</NavLink>
+
         </Navigation>
       </HeaderRow>
     )

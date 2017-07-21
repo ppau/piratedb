@@ -78,7 +78,8 @@ export default class MemberRenewPage extends Component {
       case 1:
         return <ConfirmRenewal nextStep={this.confirmMembershipRenewal}
                                errors={this.state.errors}
-                               member={this.props.auth.member}/>
+                               member={this.props.auth.member}
+                               history={this.props.history} />
       case 2:
         return <Payment email={this.props.auth.member.email}
                         member={this.props.auth.member}

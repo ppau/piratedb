@@ -113,7 +113,7 @@ export default class EditMemberForm extends Component {
                                previousStep={this.previousStep}
                                errors={this.state.errors} />
       case 3:
-        return <Finished email={this.formValues.email} history={this.props.history} />
+        return <Finished mode="edit" email={this.formValues.email} history={this.props.history} />
     }
   }
 

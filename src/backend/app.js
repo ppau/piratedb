@@ -139,4 +139,8 @@ const membershipRenewalService = require("./services/membershipRenewalService")
 
 membershipRenewalService.start()
 
+// mailing list sync
+const dadaMailingListSyncService = require("./services/dadaMailingListSyncService")
+const ppauMailingListSyncService = require("./services/ppauMailingListSyncService")
+
 module.exports = app

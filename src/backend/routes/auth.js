@@ -227,11 +227,11 @@ class AuthenticationRoutes extends BaseRoutes {
 
       if (ctx.isAuthenticated() && ctx.state) {
         rtn.user = ctx.state.user ? {
-            username: ctx.state.user.username,
-            enabled: ctx.state.user.enabled,
-            lastAuthenticated: ctx.state.user.lastAuthenticated,
-            data: ctx.state.user.data,
-          } : null
+          username: ctx.state.user.username,
+          enabled: ctx.state.user.enabled,
+          lastAuthenticated: ctx.state.user.lastAuthenticated,
+          data: ctx.state.user.data,
+        } : null
       }
       return rtn
     }))

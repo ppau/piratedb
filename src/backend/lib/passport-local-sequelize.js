@@ -209,6 +209,10 @@ const attachToUser = function(UserSchema, options) {
   }
 
   UserSchema.authenticate = function(username, password, cb) {
+    if (options.usernameLowerCase) {
+      username = username.toLowerCase()
+    }
+
     UserSchema.findByUsername(username, function(error, user) {
       if (error) {
         return cb(error)
@@ -366,7 +370,8 @@ const attachToUser = function(UserSchema, options) {
 
 const defineUser = function(sequelize, extraFields, sequelizeOptions, attachOptions) {
   const schema = _.defaults(extraFields || {}, defaultUserSchema)
-  let User = sequelize.define('User', schema, sequelizeOptions)
+  const User = sequelize.define('User', schema, sequelizeOptions)
+
   attachToUser(User, attachOptions)
   return User
 }

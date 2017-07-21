@@ -2,6 +2,7 @@ const Promise = require("bluebird").Promise
 const uuid = require("node-uuid")
 const moment = require("moment")
 const MEMBERSHIP_STATUSES = require('../../lib/membershipConstants').MEMBERSHIP_STATUSES
+const MEMBERSHIP_TYPES = require('../../lib/membershipConstants').MEMBERSHIP_TYPES
 
 const logger = require("../lib/logger")
 
@@ -15,6 +16,11 @@ const EXCLUDED_CURRENT_STATUSES = [
 
 const ACTIVE_STATUSES = [
   MEMBERSHIP_STATUSES.accepted,
+]
+
+const VOTING_MEMBERSHIP_TYPES = [
+  MEMBERSHIP_TYPES.full,
+  MEMBERSHIP_TYPES.permanentResident,
 ]
 
 module.exports = (sequelize, DataTypes) => {
@@ -40,6 +46,9 @@ module.exports = (sequelize, DataTypes) => {
   })
 
   Member.MEMBERSHIP_STATUSES = MEMBERSHIP_STATUSES
+  Member.EXCLUDED_CURRENT_STATUSES = EXCLUDED_CURRENT_STATUSES
+  Member.ACTIVE_STATUSES = ACTIVE_STATUSES
+  Member.VOTING_MEMBERSHIP_TYPES = VOTING_MEMBERSHIP_TYPES
 
   Member.associate = (models) => {
     Member.belongsTo(models.Address, { as: "postalAddress", foreignKey: "postalAddressId" })
@@ -54,7 +63,7 @@ module.exports = (sequelize, DataTypes) => {
     return Member.findAll({
       where: {
         expiresOn: { $lt: date },
-        type: { $notIn: EXCLUDED_CURRENT_STATUSES },
+        status: { $in: ACTIVE_STATUSES },
         userId: { $ne: null },
       },
       include: [{
@@ -75,7 +84,21 @@ module.exports = (sequelize, DataTypes) => {
   Member.withActiveStatus = (options) => {
     return Member.findAll(Object.assign({
       where: {
-        status: { $notIn: EXCLUDED_CURRENT_STATUSES }
+        status: { $in: ACTIVE_STATUSES },
+      }
+    }, options || {}))
+  }
+
+  /**
+   * Includes members with expired memberships, essentially 'accepted' status, e.g. not resigned.
+   * @param options
+   * @returns {Promise.<Array.<Model>>|Array|undefined}
+   */
+  Member.withActiveVotingStatus = (options) => {
+    return Member.findAll(Object.assign({
+      where: {
+        status: { $in: ACTIVE_STATUSES },
+        type: { $in: VOTING_MEMBERSHIP_TYPES },
       }
     }, options || {}))
   }
@@ -91,15 +114,6 @@ module.exports = (sequelize, DataTypes) => {
         status: { $in: EXCLUDED_CURRENT_STATUSES }
       }
     }, options || {}))
-  }
-
-  Member.allCurrent = () => {
-    return Member.find({
-      where: {
-        expiresOn: { $gt: new Date() },
-        type: { $notIn: EXCLUDED_CURRENT_STATUSES }
-      }
-    })
   }
 
   Member.updateFromFormData = (data, user, ctx) => {
@@ -355,6 +369,7 @@ module.exports = (sequelize, DataTypes) => {
     return this.save()
       .then((member) => {
         const emailService = require("../services/emailService")
+
         emailService.memberRenewalSuccessful(member)
         return member
       })

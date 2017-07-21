@@ -94,6 +94,7 @@ export default class ConfirmRenewal extends Component {
         </div>
         <div className="navigation">
           <button onClick={this.renewMember} className="nav-button">Renew my membership</button>
+          <p>or <a id="go-back" onClick={() => { this.props.history.push('/account/details') }} href="#">Cancel</a></p>
         </div>
       </div>
     </fieldset>

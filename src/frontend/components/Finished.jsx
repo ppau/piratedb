@@ -23,12 +23,21 @@ export default class Finished extends Component {
                   <br/>
               </label>
               <div className="navigation">
+                {this.props.mode === "edit" ?
+                  <button className="nav-button" onClick={() => {
+                    this.props.history.push('/account/details')
+                  }}>
+                    Member area
+                  </button>
+                  :
+                  <button className="nav-button" onClick={() => {
+                    this.props.history.push('/')
+                  }}>
+                    Sign in
+                  </button>
+                }
+
                 <button className="nav-button" onClick={() => {
-                  this.props.history.push('/account/details')
-                }}>
-                  Member area
-                </button>
-                <button onClick={() => {
                   window.location = 'https://pirateparty.org.au/'
                 }}>
                   Return to website

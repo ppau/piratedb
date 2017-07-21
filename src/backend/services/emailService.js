@@ -102,8 +102,15 @@ class EmailService {
   }
 
   static memberExpiredReminder(member) {
-    // TODO: replace with an expired email template.
-    return EmailService.memberRenewalReminder(member)
+    return models.EmailTemplate.findByName("memberExpiredReminder")
+      .then((template) => {
+        const context = {
+          givenNames: member.givenNames,
+          firstName: member.getFirstName(),
+        }
+
+        return EmailService.send(member.email, template, context)
+      })
   }
 
   static memberRenewalSuccessful(member) {

@@ -111,6 +111,27 @@ Regards,
 
 <%= organisationName %>`
   },
+  memberExpiredReminder: {
+    name: "memberExpiredReminder",
+    isMarkDown: true,
+    from: defaultFrom,
+    subject: "<%= organisationName %> - Renew your membership",
+    body: `## Renew your membership
+
+Hello <%= firstName %>,
+
+Your <%= organisationName %> membership now needs to be renewed. To renew it, please sign in to our members area by following the link below:
+
+@[Renew your membership](<%= piratedbPublicUrl %>/account/renew/)
+
+Once again we thank you for your support!
+
+Should you have any questions or concerns, do not hesitate to contact us at <%= organisationFromEmail %>
+
+Regards,
+
+<%= organisationName %>`
+  },
   userPasswordChanged: {
     name: "userPasswordChanged",
     isMarkDown: true,

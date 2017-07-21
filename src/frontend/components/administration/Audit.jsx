@@ -5,8 +5,6 @@ import { Grid, Cell, Button, DataTable, Icon, TableHeader, Tabs, Tab, IconButton
 import { Link } from 'react-router-dom'
 import GridLoading from '../GridLoading.jsx'
 
-import { MEMBERSHIP_TYPES, MEMBERSHIP_STATUSES } from '../../../lib/membershipConstants'
-
 import ReactUltimatePagination from 'react-ultimate-pagination-material-ui'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider'
 import getMuiTheme from 'material-ui/styles/getMuiTheme'
@@ -20,17 +18,15 @@ const muiTheme = getMuiTheme({
   appBar: {
     height: 50,
   },
-});
+})
 
-export default class Secretary extends Component {
+export default class Audit extends Component {
 
   constructor(props) {
     super(props)
     this.state = {
-      members: [],
+      logEntries: [],
       errors: [],
-      activeTabId: 0,
-      activeTab: "all",
       isLoaded: false,
       isLoading: false,
       pagination: {
@@ -42,10 +38,9 @@ export default class Secretary extends Component {
     }
 
     this.render = this.render.bind(this)
-    this.loadMembers = this.loadMembers.bind(this)
+    this.loadLogs = this.loadLogs.bind(this)
     this.actionRender = this.actionRender.bind(this)
     this.onPaginationChange = this.onPaginationChange.bind(this)
-    this.onActiveTabChange = this.onActiveTabChange.bind(this)
 
     this.inputKeyPress = this.inputKeyPress.bind(this)
     this.handleSearchFieldChange = this.handleSearchFieldChange.bind(this)
@@ -54,16 +49,13 @@ export default class Secretary extends Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (prevState.activeTabId !== this.state.activeTabId) {
-      this.loadMembers()
-    }
   }
 
   componentDidMount(nextProps) {
-    this.loadMembers()
+    this.loadLogs()
   }
 
-  loadMembers(pagination) {
+  loadLogs(pagination) {
     pagination = !!pagination ? pagination : this.state.pagination
 
     this.setState({
@@ -71,7 +63,7 @@ export default class Secretary extends Component {
       pagination: pagination,
     })
 
-    let url = `/admin/members?page=${pagination.page}&size=${pagination.size}&status=${this.state.activeTab}`
+    let url = `/admin/audit-list?page=${pagination.page}&size=${pagination.size}`
 
     if (this.state.searchFieldValue){
       url += `&search=${this.state.searchFieldValue}`
@@ -89,14 +81,14 @@ export default class Secretary extends Component {
         pagination.totalPages = Math.ceil(json.count / pagination.size) || 1
 
         this.setState({
-          members: json.members,
+          logEntries: json.logEntries,
           pagination: pagination,
           isLoading: false,
           isLoaded: false,
-        });
+        })
       })
       .catch((ex) => {
-        this.state.errors.push('Could not load the members list.')
+        this.state.errors.push('Could not load the log entries list.')
         this.setState({
           errors: this.state.errors,
           isLoading: false,
@@ -108,18 +100,9 @@ export default class Secretary extends Component {
   actionRender(id) {
     return (
       <div>
-        <a
-          className="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
-          href={'/admin/secretary/member-view/' + id}
-          onClick={(e) => {
-            if (e.button === 0) {
-              e.preventDefault()
-              this.props.history.push('/admin/secretary/member-view/' + id)
-              return false
-            }
-          }}>
-          Details
-        </a>
+        <Button raised disabled colored onClick={() => {
+          //this.props.history.push('/admin/audit/log-view/' + id)
+        }}>Details</Button>
       </div>
     )
   }
@@ -131,18 +114,7 @@ export default class Secretary extends Component {
       size: this.state.pagination.size,
     }
 
-    this.loadMembers(pagination)
-  }
-
-  onActiveTabChange(tabId){
-    this.setState({
-      activeTabId: tabId,
-      activeTab: tabId > 0 ? Object.keys(MEMBERSHIP_STATUSES)[tabId - 1] : "all",
-      pagination: Object.assign({}, this.state.pagination, {
-        totalPages: 1,
-        page: 1,
-      })
-    })
+    this.loadLogs(pagination)
   }
 
   inputKeyPress(event) {
@@ -156,13 +128,11 @@ export default class Secretary extends Component {
   }
 
   handleApplySearch(event) {
-    this.loadMembers()
+    this.loadLogs()
   }
 
   handleClearSearch(event) {
     this.setState({
-      activeTab: "all",
-      activeTabId: 0,
       pagination: {
         page: 1,
         totalPages: 1,
@@ -170,9 +140,6 @@ export default class Secretary extends Component {
       },
       searchFieldValue: "",
     })
-    if (this.state.activeTabId === 0) {
-      setTimeout(this.loadMembers, 500)
-    }
   }
 
   render() {
@@ -192,12 +159,12 @@ export default class Secretary extends Component {
     }
 
     return (
-      <Grid className="mdlwp-1600">
+      <Grid className="">
         <Cell col={12}>
 
           <div className="form-container" style={{textAlign: "center"}}>
             <input type="text" id="search-field" ref="searchField" style={{display: "inline-block"}}
-                   placeholder="Name and email search"
+                   placeholder="Action / message search"
                    onChange={this.handleSearchFieldChange}
                    value={this.state.searchFieldValue}
                    onKeyPress={this.inputKeyPress}
@@ -217,14 +184,6 @@ export default class Secretary extends Component {
 
           </div>
 
-          <Tabs activeTab={this.state.activeTabId} onChange={ this.onActiveTabChange } ripple>
-            { Object.keys(Object.assign({all: "all"}, MEMBERSHIP_STATUSES)).map((key, i) => {
-              return (
-                <Tab key={i} value={MEMBERSHIP_STATUSES[key]}>{key}</Tab>
-              )
-            })}
-          </Tabs>
-
           <div className="pagination-controls" style={{textAlign: "center"}}>
             <MuiThemeProvider muiTheme={muiTheme}>
               <ReactUltimatePagination
@@ -236,60 +195,27 @@ export default class Secretary extends Component {
           </div>
 
           <Grid className="no-padding">
-            <Cell col={12} hidePhone hideTablet className="no-margin">
+            <Cell col={12} className="no-margin">
               <DataTable
                 shadow={0}
-                rows={this.state.members.map(function(member) {
+                rows={this.state.logEntries.map(function(logEntry) {
                   return {
-                    id: member.id,
-                    givenNames: member.givenNames,
-                    surname: member.surname,
-                    postcode: member.residentialAddress.postcode,
-                    state: member.residentialAddress.state,
-                    country: member.residentialAddress.country,
-                    type: member.type,
-                    status: member.status,
-                    memberSince: member.memberSince,
-                    verified: member.verified
+                    id: logEntry.id,
+                    timestamp: logEntry.timestamp,
+                    level: logEntry.level,
+                    action: logEntry.action,
+                    message: logEntry.message,
+                    severity: logEntry.severity,
+                    meta: logEntry.meta,
                   }
                 })}
               >
-                <TableHeader name="givenNames">Given names</TableHeader>
-                <TableHeader name="surname">Surname</TableHeader>
-                <TableHeader name="postcode">Postcode</TableHeader>
-                <TableHeader name="state">State</TableHeader>
-                <TableHeader name="country">Country</TableHeader>
-                <TableHeader name="type">Member Type</TableHeader>
-                <TableHeader name="status">Member status</TableHeader>
-                <TableHeader name="memberSince" cellFormatter={(memberSince) => { return moment(memberSince).format("YYYY-MM-DD") }}>Member since</TableHeader>
-                <TableHeader name="verified" cellFormatter={(verified) => {
-                  return verified ? `Verified` : `Unverified`
-                }}>Verified</TableHeader>
-                <TableHeader name="id" cellFormatter={(id) => this.actionRender(id)}>Actions</TableHeader>
-              </DataTable>
-            </Cell>
-          </Grid>
+                <TableHeader style={{width: "250px"}} name="timestamp" cellFormatter={(timestamp) => { return moment(timestamp).format("YYYY-MM-DD hh:mm:ss a") }}>Timestamp</TableHeader>
+                <TableHeader style={{width: "150px"}} name="level">Level</TableHeader>
+                <TableHeader style={{width: "250px"}} name="action">Action</TableHeader>
+                <TableHeader name="message">Message</TableHeader>
 
-          <Grid>
-            <Cell col={12} hideDesktop>
-              <DataTable
-                shadow={0}
-                rows={this.state.members.map(function(member) {
-                  return {
-                    id: member.id,
-                    givenNames: member.givenNames,
-                    surname: member.surname,
-                    state: member.residentialAddress.state,
-                    type: member.type,
-                    status: member.status,
-                  }
-                })}
-              >
-                <TableHeader name="givenNames">Name</TableHeader>
-                <TableHeader name="surname">Surname</TableHeader>
-                <TableHeader name="state">State</TableHeader>
-                <TableHeader name="type">Type</TableHeader>
-                <TableHeader name="id" cellFormatter={(id) => this.actionRender(id)}>Actions</TableHeader>
+                <TableHeader style={{width: "150px"}} name="id" cellFormatter={(id) => this.actionRender(id)}>Actions</TableHeader>
               </DataTable>
             </Cell>
           </Grid>

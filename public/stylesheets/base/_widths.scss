@@ -13,3 +13,9 @@ $size__1600: 1600px;
 .mdlwp-1600 {
 	max-width: $size__1600;
 }
+
+@media (max-width: 520px) {
+	.hidden-phone {
+		display: none;
+	}
+}

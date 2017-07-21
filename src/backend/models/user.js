@@ -1,5 +1,3 @@
-
-// const strategy = require("passport-local-sequelize")
 const strategy = require("../lib/passport-local-sequelize")
 
 module.exports = (sequelize, DataTypes) => {
@@ -8,7 +6,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.JSON,
       defaultValue: {}
     },
-  })
+  },
+    null, { usernameLowerCase: true })
 
   User.associate = (models) => {
     User.hasOne(models.Member, {foreignKey: "userId"})

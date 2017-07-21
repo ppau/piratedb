@@ -48,7 +48,7 @@ async function usernameInUse(username, user, member) {
       Member.count({ where: { email: { $eq: username }}}).then((i) => { count += i })
     }
 
-    logger.info("usernameInUse", `Counted ${count} for email: ${username}`)
+    logger.debug("usernameInUse", `Counted ${count} for username: ${username}`)
     return count > 0
   }
 

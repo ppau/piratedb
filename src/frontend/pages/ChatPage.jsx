@@ -22,8 +22,8 @@ export default class ChatPage extends Component {
 
   render() {
     return (
-      <div style={{flex: "1 1 auto", overflow: "auto", width: "100%" }}>
-        <iframe style={{width: "100%", height: "100%" }} onLoad={ this.handleFrameLoaded } src="https://kiwiirc.com/client/sydney-au.pirateirc.net:+6697/?nick=WebChatUser|?#ppau" />
+      <div style={{display: "flex", flexDirection: "column", overflow: "auto", width: "100%" }}>
+        <iframe style={{width: "100%", height: "100%", flex: "1" }} onLoad={ this.handleFrameLoaded } src="https://kiwiirc.com/client/sydney-au.pirateirc.net:+6697/?nick=WebChatUser|?#ppau" />
       </div>
     )
   }

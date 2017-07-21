@@ -97,6 +97,7 @@ export default class NewMemberForm extends Component {
       })
       .then((json) => {
         this.formValues.id = json.id
+        this.saveAndContinue(this.formValues)
         return Promise.resolve(json)
       })
       .catch((ex) => {
@@ -123,18 +124,18 @@ export default class NewMemberForm extends Component {
                         membershipType={this.state.membershipType} />
       case 3:
         return <ConfirmDetails formValues={this.formValues}
-                               nextStep={this.nextStep}
+                               nextStep={this.submitMemberDetails}
                                previousStep={this.previousStep}
                                errors={this.state.errors} />
       case 4:
         return <Payment formValues={this.formValues}
-                        preNextStep={this.submitMemberDetails}
+                        preNextStep={null}
                         nextStep={this.submitPaymentComplete}
                         previousStep={this.previousStep}
                         errors={this.state.errors}
                         member={this.formValues} />
       case 5:
-        return <Finished email={this.formValues.email} history={this.props.history} />
+        return <Finished mode="new" email={this.formValues.email} history={this.props.history} />
     }
   }
 

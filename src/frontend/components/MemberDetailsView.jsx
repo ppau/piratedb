@@ -213,19 +213,32 @@ export default class MemberDetailsView extends Component {
 
   getAccountDetailsAdmin() {
     if (this.state.isAdmin) {
-      return [
-        <dt key="account-details-enable-title">Enabled</dt>,
-        <dd key="account-details-enable-value">{this.state.user.enabled ? "Yes" : "No"}</dd>,
-        <dt key="account-details-last-login-title">Last login</dt>,
-        <dd key="account-details-last-login-value">
-          { this.state.user.lastAuthenticated ?
-            <div>
-              <span>{ moment.utc(this.state.user.lastAuthenticated).format("DD/MM/YYYY h:mm:ss a") }</span><br />
-              <small> ({ moment(this.state.user.lastAuthenticated).fromNow() })</small>
-            </div>
-            : <span>Never signed in.</span> }
-        </dd>,
+      let rtn = []
+
+      if (this.state.user) {
+        rtn = [...rtn,
+          <dt key="account-details-enable-title">Enabled</dt>,
+          <dd key="account-details-enable-value">{this.state.user.enabled ? "Yes" : "No"}</dd>,
+          <dt key="account-details-last-login-title">Last login</dt>,
+          <dd key="account-details-last-login-value">
+            { this.state.user.lastAuthenticated ?
+              <div>
+                <span>{ moment.utc(this.state.user.lastAuthenticated).format("DD/MM/YYYY h:mm:ss a") }</span><br />
+                <small> ({ moment(this.state.user.lastAuthenticated).fromNow() })</small>
+              </div>
+              : <span>Never signed in.</span> }
+          </dd>
+        ]
+      }
+
+      rtn = [...rtn,
+        <dt key="account-details-member-id-title">Member UUID</dt>,
+        <dd key="account-details-member-id-value">{this.state.member ? this.state.member.id : "None" }</dd>,
+        <dt key="account-details-user-id-title">User ID</dt>,
+        <dd key="account-details-user-id-value">{this.state.user ? this.state.user.id : "None"}</dd>
       ]
+
+      return rtn
     }
   }
 
@@ -389,10 +402,11 @@ export default class MemberDetailsView extends Component {
                   <dd>{this.state.user.username}</dd>
                   <dt>Password</dt>
                   <dd><i>(obviously hidden)</i></dd>
-
-                  { this.props.isAdmin ? this.getAccountDetailsAdmin() : null }
-
                 </dl> : <p style={{marginTop: 16}}><i>User account not found</i></p> }
+
+                <dl>
+                  { this.props.isAdmin ? this.getAccountDetailsAdmin() : null }
+                </dl>
 
               </CardText>
               {this.getUserActions()}

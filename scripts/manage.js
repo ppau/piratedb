@@ -51,6 +51,35 @@ function mkdirs() {
   })
 }
 
+function getShortState(state){
+  switch (state){
+    case "Australian Capital Territory".toUpperCase():
+    case "ACT":
+      return 'ACT'
+    case "New South Wales".toUpperCase():
+    case "NSW":
+      return 'NSW'
+    case "Northern Territory".toUpperCase():
+    case "NT":
+      return 'NT'
+    case "Queensland".toUpperCase():
+    case "QLD":
+      return 'QLD'
+    case "South Australia".toUpperCase():
+    case "SA":
+      return 'SA'
+    case "Tasmania".toUpperCase():
+    case "TAS":
+      return 'TAS'
+    case "Victoria".toUpperCase():
+    case "VIC":
+      return 'VIC'
+    case "Western Australia".toUpperCase():
+    case "WA":
+      return 'WA'
+  }
+  return null
+}
 
 function newAdmin(){
   const questions = [
@@ -94,6 +123,90 @@ function newAdmin(){
   })
 }
 
+function exportMembersVotingLists() {
+  mkdirs()
+  return models.Member.withActiveVotingStatus({
+    attributes: [
+      "id",
+      "email",
+      "status",
+    ],
+    include: [
+      { model: models.Address, as: "residentialAddress", attributes: ['state', 'country'] },
+    ]
+  }).then((activeMembers) => {
+    // sort by state
+    const states = ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA']
+    const emails = {
+      all: [],
+    }
+
+    for (const member of activeMembers) {
+      let state = member.residentialAddress.state.toUpperCase()
+      state = getShortState(state)
+
+      if (!memberValidator.isValidEmail(member.email)) {
+        continue
+      }
+
+      emails.all.push(member.email)
+
+      if (states.indexOf(state) < 0) {
+        continue
+      }
+
+      const stateArr = emails[state] || []
+
+      stateArr.push(member.email)
+
+      emails[state] = stateArr
+    }
+
+    return emails
+  }).then((sortedEmails) => {
+    /*
+     * Collect all the inactive emails to make sure duplicate members records for an email (i.e. one resigned, one
+     * active) are removed from our lists. Reduce the angry hordes.
+     */
+    const p = models.Member.withInactiveStatus({
+      attributes: [
+        "id",
+        "email",
+        "status",
+      ]
+    }).then((members) => {
+      // Unique array of inactive emails (mostly resigned).
+      return Array.from(new Set(members.map((inactiveMember) => {
+        return inactiveMember.email
+      })))
+    })
+
+    return Promise.all([sortedEmails, p])
+  }).spread((votingEmailsSorted, inactiveEmails) => {
+
+    for (const key of Object.keys(votingEmailsSorted)) {
+      const filename = path.join(dataExportDir, `voting.${key}.txt`)
+
+      // Get unique active emails and filter out inactive emails
+      let keyEmails = Array.from(new Set(votingEmailsSorted[key]))
+
+      keyEmails = keyEmails.filter((email) => {
+        if (inactiveEmails.indexOf(email) >= 0){
+          console.log(`Warning: multiple records for ${email} with voting rights, and inactive.`)
+        }
+        return true
+      })
+
+      fs.writeFileSync(filename, keyEmails.join("\n"), (err) => {
+        console.log(err)
+      })
+      console.log(key, keyEmails.length)
+    }
+
+    console.log("\nExport finished")
+  })
+}
+
 function exportMembersEmailLists() {
   mkdirs()
   return models.Member.withActiveStatus({
@@ -107,13 +220,14 @@ function exportMembersEmailLists() {
     ]
   }).then((activeMembers) => {
     // sort by state
-    const states = ['NSW', 'QLD', 'VIC', 'ACT', 'WA', 'SA', 'TAS', 'NT']
+    const states = ['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA']
     const emails = {
       all: [],
     }
 
     for (const member of activeMembers) {
-      const state = member.residentialAddress.state.toUpperCase()
+      let state = member.residentialAddress.state.toUpperCase()
+      state = getShortState(state)
 
       if (!memberValidator.isValidEmail(member.email)) {
         continue
@@ -136,7 +250,7 @@ function exportMembersEmailLists() {
   }).then((emails) => {
     /*
      * Collect all the inactive emails to make sure duplicate members records for an email (i.e. one resigned, one
-     * active) are removed from our lists. Reduce the angry hoards.
+     * active) are removed from our lists. Reduce the angry hordes.
      */
     const p = models.Member.withInactiveStatus({
       attributes: [
@@ -188,12 +302,12 @@ function exportMembersEmailLists() {
 function exportMembersEmailListsInteraction() {
   return inquirer.prompt([{
     type: 'confirm',
-    name: 'import',
+    name: 'export_email',
     default: false,
-    message: "This process will export all the member records to data/export/, are you sure you wish to continue?",
+    message: "This process will export all the email list member records to data/export/, are you sure you wish to continue?",
   }])
   .then((answer) => {
-    if (!answer.import) {
+    if (!answer.export_email) {
       return Promise.reject(new Error("cancelled"))
     }
 
@@ -201,7 +315,159 @@ function exportMembersEmailListsInteraction() {
   })
 }
 
-function importMembers(){
+async function createUsersForMembers(number, queue, excluded) {
+  queue = queue || []
+
+  const excludedEmails = excluded || []
+  const members = await models.Member.findAll({
+    where: {
+      status: { $in: models.Member.ACTIVE_STATUSES },
+      userId: { $eq: null },
+      email: { $notIn: excludedEmails}
+    },
+    order: [
+      ['memberSince', 'DESC'],
+    ],
+    limit: number
+  })
+
+  let created = 0
+
+  for (const member of members) {
+    const createUser = await authUtils.usernameInUse(member.email, null, member) === false
+
+    if (createUser) {
+      await member.createUser()
+      queue.push(emailService.importedUserPasswordResetKey(member))
+      created++
+      console.log(`${member.email} created`)
+    } else {
+      excludedEmails.push(member.email)
+      console.log(`${member.email} already in use`)
+    }
+  }
+
+  console.log(`${created} < ${members.length}`)
+  if (created < members.length) {
+    await createUsersForMembers(members.length - created, queue, excludedEmails)
+    console.log("run the show again")
+  }
+
+  return queue
+}
+
+function createUsersForMembersInteraction() {
+  return inquirer.prompt([{
+    type: 'input',
+    name: 'members_create_users',
+    default: 50,
+    message: "How many members would you like to generate user accounts for?",
+  }])
+  .then((answer) => {
+    if (!answer.members_create_users) {
+      return Promise.reject(new Error("cancelled"))
+    }
+
+    return createUsersForMembers(answer.members_create_users)
+  }).then((queue) => {
+    return Promise.all(queue)
+  })
+}
+
+function exportMembersVotingListsInteraction() {
+  return inquirer.prompt([{
+    type: 'confirm',
+    name: 'export_voting',
+    default: false,
+    message: "This process will export all the voting member records to data/export/, are you sure you wish to continue?",
+  }])
+    .then((answer) => {
+      if (!answer.export_voting) {
+        return Promise.reject(new Error("cancelled"))
+      }
+
+      return exportMembersVotingLists()
+    })
+}
+
+function memberDeleteInteraction() {
+  return inquirer.prompt([{
+    type: 'confirm',
+    name: 'delete',
+    default: false,
+    message: "This process will allow you to delete entirely a members details by their uuid, are you sure you wish to continue?",
+  }]).then((answer) => {
+    if (!answer.delete) {
+      return Promise.reject(new Error("cancelled"))
+    }
+
+    const questions = [
+      {
+        type: 'input',
+        name: 'memberId',
+        message: 'Member UUID (member.id): '
+      }
+    ]
+
+    return inquirer.prompt(questions)
+  }).then((answer) => {
+    if (!answer.memberId) {
+      return Promise.reject(new Error("Missing memberId"))
+    }
+
+    const include = [
+      {
+        model: models.Address,
+        as: "postalAddress",
+      },
+      {
+        model: models.Address,
+        as: "residentialAddress",
+      },
+      {
+        model: models.User,
+        as: "user",
+      }
+    ]
+
+    return models.Member.findOne({where: {id: answer.memberId}, include: include})
+  }).then((member) => {
+    if (!member) {
+      return Promise.reject(new Error("Member not found"))
+    }
+
+    return models.connection.transaction().then(async (t) => {
+      if (member.residentialAddress) {
+        console.log(`Deleting residentialAddress.id ${member.residentialAddress.id} ...`)
+        await member.residentialAddress.destroy({transaction: t})
+      }
+
+      if (member.postalAddress) {
+        console.log(`Deleting postalAddress.id ${member.postalAddress.id} ...`)
+        await member.postalAddress.destroy({transaction: t})
+      }
+
+      if (member.user) {
+        console.log(`Deleting user.id ${member.user.id} ...`)
+        await member.user.destroy({transaction: t})
+      }
+
+      console.log(`Deleting member.id ${member.id} ...`)
+      await member.destroy({transaction: t})
+
+      return t
+    }).then((t) => {
+      return t.commit()
+    })
+  }).then((success) => {
+    console.log("Member UUID and associated records deleted.")
+  }).catch((error) => {
+    console.log(error.message)
+    console.log(error.stack)
+  })
+}
+
+function importMembersInteraction(){
   return inquirer.prompt([{
     type: 'confirm',
     name: 'import',
@@ -219,7 +485,15 @@ function importMembers(){
     if (!fs.existsSync(membersJsonPath)) {
       throw new Error(`The members.json file does not exist at path: ${membersJsonPath}`)
     }
-    const members = require(membersJsonPath)
+
+    let members
+
+    try {
+      members = require(membersJsonPath)
+    } catch (error) {
+      console.log(error)
+    }
+
 
     if (!Array.isArray(members)) {
       throw new Error(`The members.json file must be an array or member data.`)
@@ -258,6 +532,7 @@ function importMembers(){
         }
       }
     })
+    console.log("members to import:", members.length)
     console.log("validationFailed:", validationFailed)
     console.log("members with errors:", Object.keys(validationFailed).length)
     return members
@@ -350,11 +625,24 @@ function interactionManager() {
     new inquirer.Separator(),
     {
       name: 'Export members email lists',
-      value: 'export',
+      value: 'members_export_email',
+    },
+    {
+      name: 'Export voting members list',
+      value: 'members_export_voting',
     },
     {
       name: 'Import members',
-      value: 'import',
+      value: 'members_import',
+    },
+    {
+      name: 'Create users for members',
+      value: 'members_create_users',
+    },
+    new inquirer.Separator(),
+    {
+      name: 'Delete member',
+      value: 'member_delete',
     },
     new inquirer.Separator(),
     {
@@ -367,15 +655,22 @@ function interactionManager() {
     type: 'list',
     name: 'menu',
     message: 'Select a menu option',
-    choices: choices
+    choices: choices,
+    pageSize: '15'
   }]).then(async (answer) => {
     switch (answer.menu){
       case "newAdmin":
         return newAdmin()
-      case "export":
+      case "members_export_email":
         return exportMembersEmailListsInteraction()
-      case "import":
-        return importMembers()
+      case "members_export_voting":
+        return exportMembersVotingListsInteraction()
+      case "members_import":
+        return importMembersInteraction()
+      case "members_create_users":
+        return createUsersForMembersInteraction()
+      case "member_delete":
+        return memberDeleteInteraction()
       case "exit":
         process.exit(0)
         break
@@ -385,7 +680,7 @@ function interactionManager() {
 
 // execute when db is ready
 try {
-  models.connection.sync()
+  models.connection.authenticate()
     .then(() => {
       return interactionManager()
     })

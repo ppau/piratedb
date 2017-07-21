@@ -37,12 +37,13 @@ export default class App extends Component {
   }
 
   closeDrawerOnClick() {
-    let layout = document.querySelector('.mdl-layout')
+    const layout = document.querySelector('.mdl-layout')
+
     layout.MaterialLayout.toggleDrawer()
   }
 
   getMenuItems() {
-    let menu = []
+    const menu = []
 
     // Return to main website link
     menu.push(
@@ -68,11 +69,6 @@ export default class App extends Component {
         <Link key="app-menu-account-payments" onClick={this.closeDrawerOnClick} to="/account/payments"><Icon
           name="account_balance_wallet"/>Payments</Link>,*/
 
-        /*<hr key="app-menu-sign-out-hr"/>,
-        <a key="app-menu-sign-out" href="/sign-out">
-          <i className="material-icons">exit_to_app</i>
-          Sign out
-        </a>,*/
         //<Link key="app-menu-account-notifications" onClick={this.closeDrawerOnClick} to="/account/notifications"><Icon name="notifications" /> Notifications</Link>,
 
         <hr key="app-menu-discuss-hr"/>,
@@ -98,14 +94,25 @@ export default class App extends Component {
       if (this.props.auth.user.data.roles.isSecretary) {
         menu.push(
           <Link key="app-menu-admin-secretary" onClick={this.closeDrawerOnClick} to="/admin/secretary"><Icon
-            name="group"/>Secretary</Link>
+            name="group"/>Members</Link>
         )
       }
 
       if (this.props.auth.user.data.roles.isTreasurer) {
         menu.push(
           <Link key="app-menu-admin-treasurer" onClick={this.closeDrawerOnClick} to="/admin/treasurer"><Icon
-            name="group"/>Treasurer</Link>
+            name="group"/>Invoices</Link>
+        )
+      }
+
+      if (this.props.auth.user.data.roles.isSecretary) {
+        menu.push(
+          <Link key="app-menu-admin-users" onClick={this.closeDrawerOnClick} to="/admin/users"><Icon
+            name="group"/>Users</Link>
+        )
+        menu.push(
+          <Link key="app-menu-admin-audit" onClick={this.closeDrawerOnClick} to="/admin/audit"><Icon
+            name="group"/>Audit</Link>
         )
       }
     }
@@ -167,7 +174,13 @@ export default class App extends Component {
                   &nbsp;Sign out
                 </a>
               </Navigation>
-              : null }
+              : <Navigation className="pull-right hidden-phone">
+                <a href="https://pirateparty.org.au/">
+                  <i className="material-icons">public</i>
+                  &nbsp;Return to website
+                </a>
+              </Navigation>
+            }
           </PirateHeaderRow>
 
           <ConnectedRouterSwitch>

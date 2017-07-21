@@ -58,6 +58,10 @@ A member engagement platform for the pirate movement, and anyone else.
 
         sequelize db:migrate --config=src/backend/config/sequelize.js
 
+    Create new migrations:
+
+        sequelize migration:create --name your_migration_name --config=src/backend/config/sequelize.js
+
 0. Create an administrator user
 
         npm run manage

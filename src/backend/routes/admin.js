@@ -1,6 +1,6 @@
 
 const { requireAuth, requireAdmin } = require("../providers/auth")
-const { Member, Address, User } = require("../models")
+const { Member, Address, User, LogEntry, Invoice } = require("../models")
 const Serializer = require('sequelize-to-json')
 const Sequelize = require("sequelize")
 const logger = require("../lib/logger")
@@ -11,6 +11,7 @@ const BaseRoutes = require("../lib/routes").BaseRoutes
 const endpoints = require("../lib/routes").endpoints
 const ratelimiters = require('./ratelimiters')
 const emailService = require("../services/emailService")
+const ppauMailingListSyncService = require("../services/ppauMailingListSyncService")
 
 const memberValidator = require('../../lib/memberValidator')
 const statisticsProvider = require('../providers/statistics')
@@ -20,14 +21,22 @@ class AdminRoutes extends BaseRoutes {
     return {
       get: {
         "/admin/dashboard": [requireAuth, requireAdmin, this.renderDashboard],
+
         "/admin/members": [requireAuth, requireAdmin, this.members],
         "/admin/members/:id": [requireAuth, requireAdmin, this.member],
+
+        "/admin/audit": [requireAuth, requireAdmin, this.index],
+        "/admin/audit-list": [requireAuth, requireAdmin, this.audit],
+
+        "/admin/treasurer": [requireAuth, requireAdmin, this.index],
+        "/admin/invoices": [requireAuth, requireAdmin, this.index],
+        "/admin/invoices-list": [requireAuth, requireAdmin, this.invoices],
 
         "/admin/statistics": [requireAuth, requireAdmin, this.statistics],
 
         "/admin/secretary/member-view/:id": [requireAuth, requireAdmin, this.index],
         "/admin/secretary": [requireAuth, requireAdmin, this.index],
-        "/admin/treasurer": [requireAuth, requireAdmin, this.index],
+
         //"/admin*": [requireAuth, requireAdmin, this.redirect],
       },
 
@@ -90,6 +99,37 @@ class AdminRoutes extends BaseRoutes {
     }
   }
 
+  static get logEntryScheme() {
+    return {
+      include: [
+        "id",
+        "timestamp",
+        "level",
+        "action",
+        "message",
+        "severity",
+        "meta",
+      ],
+    }
+  }
+
+  static get invoiceScheme() {
+    return {
+      include: [
+        "id",
+        "totalAmountInCents",
+        "paymentDate",
+        "paymentMethod",
+        "reference",
+        "paymentStatus",
+        "transactionId",
+        "data",
+        "createdAt",
+        "updatedAt",
+      ],
+    }
+  }
+
   static get memberProps() {
     return {
       attributes: [
@@ -106,6 +146,7 @@ class AdminRoutes extends BaseRoutes {
         "memberSince",
         "expiresOn",
         "verified",
+        "isPostalAddressDifferent",
       ],
       include: [
         {model: Address, as: "postalAddress"},
@@ -127,6 +168,154 @@ class AdminRoutes extends BaseRoutes {
       include: [
       ]
     }
+  }
+
+  static get logEntryProps() {
+    return {
+      attributes: [
+        "id",
+        "timestamp",
+        "level",
+        "action",
+        "message",
+        "severity",
+        "meta",
+      ],
+      include: [
+      ]
+    }
+  }
+
+
+  static get invoiceProps() {
+    return {
+      attributes: [
+        "id",
+        "totalAmountInCents",
+        "paymentDate",
+        "paymentMethod",
+        "reference",
+        "paymentStatus",
+        "transactionId",
+        "data",
+        "createdAt",
+        "updatedAt",
+      ],
+      include: [
+      ]
+    }
+  }
+
+  async invoices(ctx) {
+    const paginationDefaults = {
+      size: 15,
+      page: 1,
+    }
+
+    const fields = {}
+    const validatorFn = (field, validator) => {
+      fields[field] = validator
+      return validator.hasError() ? null : validator.value
+    }
+
+    const paginationPage = validatorFn('page', ctx.checkQuery('page').toInt().gt(0)) || paginationDefaults.page
+    const paginationSize = validatorFn('size', ctx.checkQuery('size').toInt().gt(0).le(100)) || paginationDefaults.size
+    const filterStatus = validatorFn('status', ctx.checkQuery('status').optional().in(Object.keys(Invoice.INVOICE_STATUSES).concat(['all'])))
+    const filterSearch = validatorFn('search', ctx.checkQuery('search').optional().len(1, 50))
+
+    const pagination = {
+      limit: paginationSize,
+      offset: paginationSize * (paginationPage - 1),
+    }
+
+    const where = {
+      $and: []
+    }
+
+    if (filterStatus && filterStatus !== 'all') {
+      where.$and.push({
+        paymentStatus: {
+          $eq: filterStatus
+        }
+      })
+    }
+
+
+    if (filterSearch) {
+      where.$and.push(
+        Sequelize.where(Sequelize.fn("concat", Sequelize.col("reference"), Sequelize.col("transactionId")), {
+          $iLike: `%${filterSearch}%`
+        })
+      )
+    }
+
+    ctx.body = await Invoice.findAndCountAll(Object.assign({
+      where: where,
+      order: [
+        ["createdAt", "desc"],
+      ]
+    }, AdminRoutes.invoiceProps, pagination))
+      .then((result) => {
+        return {
+          invoices: Serializer.serializeMany(result.rows, Invoice, AdminRoutes.invoiceScheme),
+          count: result.count,
+        }
+      })
+      .catch((error) => {
+        logger.error("admin-invoices", error)
+        return Sequelize.Promise.reject("An error has occurred while fetching invoices.")
+      })
+  }
+
+  async audit(ctx) {
+    const paginationDefaults = {
+      size: 15,
+      page: 1,
+    }
+
+    const fields = {}
+    const validatorFn = (field, validator) => {
+      fields[field] = validator
+      return validator.hasError() ? null : validator.value
+    }
+
+    const paginationPage = validatorFn('page', ctx.checkQuery('page').toInt().gt(0)) || paginationDefaults.page
+    const paginationSize = validatorFn('size', ctx.checkQuery('size').toInt().gt(0).le(100)) || paginationDefaults.size
+    const filterSearch = validatorFn('search', ctx.checkQuery('search').optional().len(1, 50))
+
+    const pagination = {
+      limit: paginationSize,
+      offset: paginationSize * (paginationPage - 1),
+    }
+
+    const where = {
+      $and: []
+    }
+
+    if (filterSearch) {
+      where.$and.push(
+        Sequelize.where(Sequelize.fn("concat", Sequelize.col("message"), Sequelize.col("action")), {
+          $iLike: `%${filterSearch}%`
+        })
+      )
+    }
+
+    ctx.body = await LogEntry.findAndCountAll(Object.assign({
+      where: where,
+      order: [
+        ["timestamp", "desc"],
+      ]
+    }, AdminRoutes.logEntryProps, pagination))
+      .then((result) => {
+        return {
+          logEntries: Serializer.serializeMany(result.rows, LogEntry, AdminRoutes.logEntryScheme),
+          count: result.count,
+        }
+      })
+      .catch((error) => {
+        logger.error("admin-audit", error)
+        return Sequelize.Promise.reject("An error has occurred while fetching log entries.")
+      })
   }
 
   async members(ctx) {
@@ -204,7 +393,7 @@ class AdminRoutes extends BaseRoutes {
       .catch((error) => {
         logger.error("admin-members", error)
         return Sequelize.Promise.reject("An error has occurred while fetching members.")
-    })
+      })
   }
 
   async member(ctx) {
@@ -254,8 +443,19 @@ class AdminRoutes extends BaseRoutes {
       })
       .spread((previousStatus, member) => {
         // Membership accepted notification
-        if (previousStatus === Member.MEMBERSHIP_STATUSES.pending && member.get("status") === Member.MEMBERSHIP_STATUSES.accepted) {
+        if (previousStatus === Member.MEMBERSHIP_STATUSES.pending && member.status === Member.MEMBERSHIP_STATUSES.accepted) {
           member.membershipAccepted()
+          ppauMailingListSyncService.emit("memberAccepted", member)
+        }
+
+        // remove members from mailing lists
+        if (previousStatus === Member.MEMBERSHIP_STATUSES.accepted &&
+          [
+            Member.MEMBERSHIP_STATUSES.resigned,
+            Member.MEMBERSHIP_STATUSES.suspended,
+            Member.MEMBERSHIP_STATUSES.expelled,
+          ].includes(member.get("status"))) {
+          ppauMailingListSyncService.emit("memberResignedOrSuspendedOrExpelled", member)
         }
 
         return {

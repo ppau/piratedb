@@ -57,6 +57,7 @@ const config = Object.assign(true, {
   database: configJson.config[env].database,
   session: configJson.config[env].session,
   www: configJson.config[env].www,
+  services: configJson.config[env].services,
   gateways: require('./gateways'),
   email: configJson.email[env],
   packageJson: packageJson,
