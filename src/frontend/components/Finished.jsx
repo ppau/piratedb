@@ -1,10 +1,16 @@
 import React, { Component } from "react"
+import BankDetails from '../components/BankDetails.jsx'
 import { Link } from 'react-router-dom'
 
 export default class Finished extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      paymentData: props.paymentData,
+    }
+  }
 
   render() {
-
     return (
       <div id="form" className="form-container">
         <fieldset>
@@ -22,12 +28,16 @@ export default class Finished extends Component {
 
                   <br/>
               </label>
+
+              { this.state.paymentData && (this.state.paymentData.paymentType === "deposit" || this.state.paymentData.paymentType === "cheque")
+                ? <BankDetails reference={this.state.paymentData.json.reference} /> : null }
+
               <div className="navigation">
                 {this.props.mode === "edit" ?
                   <button className="nav-button" onClick={() => {
                     this.props.history.push('/account/details')
                   }}>
-                    Member area
+                    Members area
                   </button>
                   :
                   <button className="nav-button" onClick={() => {

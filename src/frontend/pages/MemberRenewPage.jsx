@@ -25,12 +25,12 @@ export default class MemberRenewPage extends Component {
   componentDidMount() {
   }
 
-  nextStep(invoiceId) {
+  nextStep(payload) {
     const step = this.state.step + 1
 
     this.setState({
       step: step,
-      invoiceId: invoiceId,
+      payload: payload,
     })
 
     if (step === 2) {
@@ -66,7 +66,7 @@ export default class MemberRenewPage extends Component {
         return response.json()
       })
       .then((json) => {
-        this.nextStep(json.data.invoiceId)
+        this.nextStep(json.data)
       })
       .catch((ex) => {
         console.log(ex)
@@ -86,7 +86,7 @@ export default class MemberRenewPage extends Component {
                         invoiceId={this.state.invoiceId}
                         nextStep={this.nextStep}/>
       case 3:
-        return <RenewalFinish history={this.props.history} />
+        return <RenewalFinish paymentData={this.state.payload} history={this.props.history} />
     }
   }
 

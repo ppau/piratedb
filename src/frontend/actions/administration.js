@@ -129,3 +129,47 @@ export function executeToggleUserEnabled(payload) {
 
   return promiseDispatchFactory(params)
 }
+
+/*
+* Load member application statistics
+*/
+export function statisticsPending(payload) {
+  return {
+    type: actionTypes.MEMBER_STATISTICS_PENDING,
+    status: 'pending',
+    payload: payload,
+  }
+}
+
+export function statisticsFulfilled(payload, response) {
+  return {
+    type: actionTypes.MEMBER_STATISTICS_FULFILLED,
+    status: response.status === 200 ? "success" : "error",
+    payload: payload,
+  }
+}
+
+export function statisticsRejected(error) {
+  return {
+    type: actionTypes.MEMBER_STATISTICS_REJECTED,
+    status: "error",
+    payload: {
+      errors: [
+        "A server error occurred."
+      ]
+    },
+  }
+}
+
+export function executeLoadStatistics() {
+  const params = {
+    url: `/admin/statistics`,
+    payload: null,
+    pending: statisticsPending,
+    fulfilled: statisticsFulfilled,
+    rejected: statisticsRejected,
+    method: 'GET',
+  }
+
+  return promiseDispatchFactory(params)
+}

@@ -64,8 +64,12 @@ class ConsoleTransport extends transports.Console {
       base += ` (User: ${userId})`
     }
 
-    if (meta) {
-      base += `\n  ${JSON.stringify(meta)}`
+    if (meta && config.env !== "production") {
+      try {
+        base += `\n  ${JSON.stringify(meta)}`
+      } catch (err) {
+        // give up
+      }
     }
 
     return base

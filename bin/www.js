@@ -23,6 +23,8 @@ function normalizePort(val) {
   return false
 }
 
+app.proxy = true
+
 const port = normalizePort(process.env.PORT || config.www.port)
 
 function onError(error) {

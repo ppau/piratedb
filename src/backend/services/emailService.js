@@ -208,6 +208,23 @@ class EmailService {
   }
 
   /*
+  * Imported member user password reminder
+  */
+  static importedUserPasswordResetKeyReminder(member) {
+    return models.EmailTemplate.findByName("importedUserPasswordResetKeyReminder")
+      .then(async (template) => {
+        const user = await member.getUser() || {}
+
+        const context = {
+          firstName: member.getFirstName(),
+          resetPasswordKey: user.resetPasswordKey,
+          username: user.username,
+        }
+
+        return EmailService.send(member.email, template, context)
+      })
+  }
+  /*
   * Forgotten password emails
   */
   static forgottenPasswordResetKey(member) {

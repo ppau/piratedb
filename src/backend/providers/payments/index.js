@@ -1,6 +1,7 @@
 
 const BaseRoutes = require("../../lib/routes").BaseRoutes
 const endpoints = require("../../lib/routes").endpoints
+const ratelimiters = require('../../routes/ratelimiters')
 
 const { json } = require("../view-helpers")
 
@@ -14,10 +15,10 @@ class Payments extends BaseRoutes {
 
     return {
       get: {
-        [`/payment/${name}`]: this.generateToken.bind(this)
+        [`/payment/${name}`]: [ratelimiters.createIpHourlyRatelimiter(10), this.generateToken.bind(this)],
       },
       post: {
-        [`/payment/${name}`]: json(this.processPayment.bind(this))
+        [`/payment/${name}`]: [ratelimiters.createIpHourlyRatelimiter(5), json(this.processPayment.bind(this))],
       }
     }
   }

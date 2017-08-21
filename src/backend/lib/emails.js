@@ -99,7 +99,7 @@ Regards,
 
 Hello <%= firstName %>,
 
-Your <%= organisationName %> membership is due to expire in <%= remainderPeriod %>. To renew it, please sign in to our members area by following the link below:
+Your <%= organisationName %> membership is due to expire <%= remainderPeriod %>. To renew it, please sign in to our members area by following the link below:
 
 @[Renew your membership](<%= piratedbPublicUrl %>/account/renew/)
 
@@ -174,7 +174,7 @@ A new member application requires your approval or referral to the National Coun
 
 A new account has been created for you to manage your <%= organisationName %> membership.
 
-The process is simply and only requires that you pick a strong new password at the below link before you can sign in.
+The process is simple and only requires that you pick a strong new password at the below link before you can sign in.
 
 @[Set your password](<%= piratedbPublicUrl %>/imported-member-password-change/<%= resetPasswordKey %>/<%= username %>)
 
@@ -183,6 +183,39 @@ If you have any questions, please contact us at: <%= organisationFromEmail %>
 Regards,
 
 <%= organisationName %>`
+  }, importedUserPasswordResetKeyReminder: {
+    name: "importedUserPasswordResetKeyReminder",
+    isMarkDown: true,
+    from: defaultFrom,
+    subject: "<%= organisationName %> - New account information reminder",
+    body: `Hello <%= firstName %>,
+
+We would like to remind you that we have created a new account for you in our new members area to help you renew and keep your <%= organisationName %> membership up to date.
+
+The process is simple and only requires that you pick a strong new password at the below link before you can sign in.
+
+@[Set your password](<%= piratedbPublicUrl %>/imported-member-password-change/<%= resetPasswordKey %>/<%= username %>)
+
+## AEC Audit
+
+While you're here, we're asking all Full members to update their details, as we have been notified by the AEC of another audit, which requires us to prove our membership to the AEC again. This is required for us to remain registered to run in federal elections.
+
+Please follow the instructions below:
+
+* Check your enrolment record with the AEC is correct, by visiting [https://check.aec.gov.au/](https://check.aec.gov.au/)
+* Sign in to our new members platform, by using the [Set your password](<%= piratedbPublicUrl %>/imported-member-password-change/<%= resetPasswordKey %>/<%= username %>) link
+* Check that your personal details in our members area exactly matches your enrolment record at the AEC (including your address and middle name/s)
+* Renew your membership if required
+* Make a small donation if you are able to
+
+If you have any questions, please contact us at: [membership@pirateparty.org.au](mailto:membership@pirateparty.org.au)
+
+Regards,
+
+<%= organisationName %>
+
+Note: This email was sent because you are a member of Pirate Party Australia. If you no longer wish to hear from us, you can resign your membership by requesting it in writing to [secretary@pirateparty.org.au](mailto:secretary@pirateparty.org.au)
+`
   }, forgottenPasswordResetKey: {
     name: "forgottenPasswordResetKey",
     isMarkDown: true,

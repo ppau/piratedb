@@ -12,7 +12,9 @@ export default class ViewDataDialog extends Component {
     super(props)
     this.state = {
       parentOnCloseHandler: this.props.onClose,
-      member: this.props.member,
+      data: this.props.data,
+      title: this.props.title,
+      collapsed: this.props.collapsed || true,
       isOpen: this.props.isOpen,
       isFinished: false,
       errors: [],
@@ -29,6 +31,8 @@ export default class ViewDataDialog extends Component {
   componentWillReceiveProps(nextProps) {
     this.setState({
       isOpen: nextProps.isOpen,
+      data: nextProps.data,
+      collapsed: nextProps.collapsed || true,
     })
   }
 
@@ -70,7 +74,7 @@ export default class ViewDataDialog extends Component {
     let content = () => {
       return (
         <div ref={(elem) => { this.dialogContent = elem }}>
-          <ReactJson src={this.state.member.data} collapsed={true} onEdit={(elem) => {}} name="data" />
+          <ReactJson src={this.state.data} collapsed={this.state.collapsed} onEdit={(elem) => {}} name="data" />
         </div>
       )
     }
@@ -85,7 +89,7 @@ export default class ViewDataDialog extends Component {
 
     return (
       <Dialog open={this.state.isOpen} ref={(elem) => { this.dialog = elem }}>
-        <DialogTitle>Data for member</DialogTitle>
+        <DialogTitle>{this.state.title}</DialogTitle>
         <DialogContent className="form-container">
 
           { content }

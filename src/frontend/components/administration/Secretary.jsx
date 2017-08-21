@@ -250,7 +250,8 @@ export default class Secretary extends Component {
                     type: member.type,
                     status: member.status,
                     memberSince: member.memberSince,
-                    verified: member.verified
+                    verified: member.verified,
+                    userId: member.userId,
                   }
                 })}
               >
@@ -262,6 +263,16 @@ export default class Secretary extends Component {
                 <TableHeader name="type">Member Type</TableHeader>
                 <TableHeader name="status">Member status</TableHeader>
                 <TableHeader name="memberSince" cellFormatter={(memberSince) => { return moment(memberSince).format("YYYY-MM-DD") }}>Member since</TableHeader>
+                <TableHeader name="userId" cellFormatter={(userId) => {
+                  if (userId !== null) {
+                    return (
+                      <Icon name="done"/>
+                    )
+                  }
+                  return (
+                      <Icon name="close"/>
+                  )
+                }}>Has user</TableHeader>
                 <TableHeader name="verified" cellFormatter={(verified) => {
                   return verified ? `Verified` : `Unverified`
                 }}>Verified</TableHeader>

@@ -48,17 +48,19 @@ export default class ForgottenPassword extends Component {
 
   validationErrorClass(fieldName) {
     if (this.isValidationError(fieldName)) {
-      return 'invalid';
+      return 'invalid'
     }
     return
   }
 
   isValid() {
-    let errors = {}
-    if (validator.isEmpty(this.state.username)) {
+    const errors = {}
+    const username = _.trim(this.state.username)
+
+    if (validator.isEmpty(username)) {
       errors['username'] = "Email is required"
     } else {
-      if (!validator.isEmail(this.state.username)) {
+      if (!validator.isEmail(username)) {
         errors['username'] = "Valid email address is required"
       }
     }
@@ -75,9 +77,10 @@ export default class ForgottenPassword extends Component {
     }
 
     const payload = {
-      username: this.state.username,
+      username: _.trim(this.state.username),
       history: this.props.history
     }
+
     this.props.executeForgottenPassword(payload)
   }
 

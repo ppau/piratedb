@@ -13,7 +13,6 @@ module.exports = {
     react: 'webpack/hot/only-dev-server',
     main: './src/frontend/index.jsx',
     // renew: './src/frontend/components/Renew.jsx',
-    // admin: './src/frontend/components/admin/AdminDashboard.jsx'
   },
   output: {
     path: path.join(__dirname, 'public', 'javascript'),

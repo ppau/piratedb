@@ -13,9 +13,37 @@ const listMappings = [
     name: "Australia",
     states: [
       {
+        name: "Australian Capital Territory",
+        list: "AnnoTas"
+      },
+      {
+        name: "New South Wales",
+        list: "AnnoTas"
+      },
+      {
+        name: "Northern Territory",
+        list: "AnnoNT"
+      },
+      {
+        name: "Queensland",
+        list: "AnnoQLD"
+      },
+      {
+        name: "South Australia",
+        list: "AnnoSA"
+      },
+      {
         name: "Tasmania",
         list: "AnnoTas"
-      }
+      },
+      {
+        name: "Victoria",
+        list: "AnnoVic"
+      },
+      {
+        name: "Western Australia",
+        list: "AnnoWA"
+      },
     ]
   }
 ]
@@ -23,11 +51,14 @@ const listMappings = [
 class PPAUMailingListSyncService {
   constructor(syncConfig) {
     this.syncConfig = syncConfig
-    logger.notice(TAG, `Initialised PPAU mailing list sync.`)
+    logger.notice(TAG, `Initialising PPAU mailing list sync.`)
+    if (this.syncConfig && !this.syncConfig.enabled) {
+      logger.notice(TAG, `PPAU mailing list sync disabled via config.`)
+    }
   }
 
   async emit(eventName, member) {
-    if (!this.syncConfig || !!dadaMailingListSyncService) {
+    if (!this.syncConfig || !this.syncConfig.enabled || !dadaMailingListSyncService) {
       return
     }
 
@@ -38,7 +69,7 @@ class PPAUMailingListSyncService {
     for (const eventHandler of eventHandlers) {
       for (const list of eventHandler.lists) {
         if (typeof list === "string") {
-          logger.warning(TAG, `Execute action ${eventHandler.action} on member.id = ${member.id}, member.email = ${member.email} to ${list} mailing list.`)
+          logger.info(TAG, `Execute action ${eventHandler.action} on member.id = ${member.id}, member.email = ${member.email} to ${list} mailing list.`)
           const actionFn = dadaMailingListSyncService[eventHandler.action]
 
           actionFn.bind(dadaMailingListSyncService)(member.email, list)
@@ -69,7 +100,7 @@ class PPAUMailingListSyncService {
       return s.name === member.residentialAddress.state
     })[0]
 
-    logger.warning(TAG, `Adding member ${member.id}, ${member.email} to ${state.list} mailing list.`)
+    logger.info(TAG, `Adding member ${member.id}, ${member.email} to ${state.list} mailing list.`)
     dadaMailingListSyncService.subscribe(member.email, state.list)
   }
 
@@ -91,7 +122,7 @@ class PPAUMailingListSyncService {
       return s.name === member.residentialAddress.state
     })[0]
 
-    logger.warning(TAG, `Removing member ${member.id}, ${member.email} from ${state.list} mailing list.`)
+    logger.info(TAG, `Removing member ${member.id}, ${member.email} from ${state.list} mailing list.`)
     dadaMailingListSyncService.unsubscribe(member.email, state.list)
   }
 }

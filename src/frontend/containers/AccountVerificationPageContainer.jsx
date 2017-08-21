@@ -12,4 +12,5 @@ const AccountVerificationPageContainer = connect(
     return bindActionCreators(verificationActions, dispatch)
   }
 )(AccountVerificationPage)
+
 export default AccountVerificationPageContainer

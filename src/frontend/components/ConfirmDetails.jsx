@@ -6,15 +6,16 @@ import OtherMemberDeclarationText from './declaration-text/OtherMemberDeclaratio
 export default class ConfirmDetails extends Component {
   constructor(props) {
     super(props)
+    this.state = {
+      errors: [],
+      errorTitle: ""
+    }
+
     this.getFullAddress = this.getFullAddress.bind(this)
     this.confirmDetailsOnClick = this.confirmDetailsOnClick.bind(this)
     this.getDeclaration = this.getDeclaration.bind(this)
     this.getCheckboxText = this.getCheckboxText.bind(this)
     this.isValidationError = this.isValidationError.bind(this)
-    this.state = {
-        errors: [],
-        errorTitle: ""
-    }
   }
 
   getFullAddress(addressObj) {
@@ -39,7 +40,10 @@ export default class ConfirmDetails extends Component {
       this.props.nextStep()
     }
     else {
-      this.setState({errorTitle: "Please check the following fields:", errors:["Please click the declaration checkbox and check that your details are correct before continuing."]})
+      this.setState({
+        errorTitle: "Please check the following fields:",
+        errors: ["Please click the declaration checkbox and check that your details are correct before continuing."]
+      })
     }
   }
 
@@ -80,7 +84,7 @@ export default class ConfirmDetails extends Component {
             </label>
             <div className="heading">
                 <h2 className="sub-title">Check your details</h2>
-                <div className="sub-description">Please enter all the data you have entered is correct. It is a serious offence to make a false declaration.</div>
+                <div className="sub-description">Please confirm all the data you have entered is correct. It is a serious offence to make a false declaration.</div>
             </div>
             <div className="declaration">
                 <div className="declaration-text">
@@ -94,8 +98,8 @@ export default class ConfirmDetails extends Component {
                 </div>
             </div>
             <div className="navigation">
-                <button className="nav-button" onClick={this.confirmDetailsOnClick}>My details are correct</button>
-                <p>or <a onClick={this.props.previousStep} id='go-back' href="#">go back to change your details</a></p>
+                <button className="nav-button" onClick={this.confirmDetailsOnClick}>Submit application</button>
+                <p>or <a onClick={this.props.previousStep} id="go-back" href="#">go back to change your details</a></p>
             </div>
         </div>
     </fieldset>)

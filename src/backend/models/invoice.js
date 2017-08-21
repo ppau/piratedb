@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       paymentStatus: data.status || "new",
       transactionId: uuid.v4(),
       data: {
-        memberId: data.memberId
+        memberId: data.memberId || null
       }
     })
 

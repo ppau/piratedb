@@ -83,7 +83,7 @@ export default class Payment extends Component {
 
   handlePaymentTypeChanged(event) {
     this.handleValidationErrors(_.pull(this.state.invalidFields, "paymentType"), false)
-    this.setState({ paymentType: event.target.value })
+    this.setState({ paymentType: event.target.value, errors: {} })
     this.setState({ continueButtonDisabled: false })
   }
 
@@ -104,6 +104,13 @@ export default class Payment extends Component {
 
     if (this.props.preNextStep) {
       preNextStepResponse = this.props.preNextStep()
+    }
+
+    if (!this.state.paymentType) {
+      this.setState({
+        errors: ["Select a payment option."]
+      })
+      return
     }
 
     if (this.state.paymentType === "braintree" ||
@@ -180,7 +187,7 @@ export default class Payment extends Component {
       })
       .catch((ex) => {
         this.setState({
-          errors: ["Sorry, we could not register you this time. Please try again, or " +
+          errors: ["Sorry, there was an error processing your payment request. Please try again, or " +
           "contact us at membership@pirateparty.org.au."]
         })
       })
@@ -193,9 +200,15 @@ export default class Payment extends Component {
         <fieldset>
           <h1 className="form-title">{this.state.title}</h1>
           <div className="form-body">
+
             <Errors invalidFields={this.state.errorMessages}
                     scrollToError={this.state.scrollToError}
                     errorTitle="Please check the following fields:"/>
+
+            <Errors invalidFields={this.state.errors}
+                    scrollToError={this.state.scrollToError}
+                    errorTitle="An error occurred:"/>
+
             { this.state.showContributionBanner ?
               <div className="reminder">
                 <img src="/images/reminder.svg"/>

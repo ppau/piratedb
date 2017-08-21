@@ -96,7 +96,7 @@ function newAdmin(){
   ]
 
   return inquirer.prompt(questions).then(async (answers) => {
-    if (await authUtils.usernameInUse(answers.username)) {
+    if (await authUtils.usernameNotAvailable(answers.username)) {
       console.error("***************************")
       console.error("Username is already in use.")
       console.error("***************************")
@@ -334,7 +334,7 @@ async function createUsersForMembers(number, queue, excluded) {
   let created = 0
 
   for (const member of members) {
-    const createUser = await authUtils.usernameInUse(member.email, null, member) === false
+    const createUser = await authUtils.usernameNotAvailable(member.email, null, member) === false
 
     if (createUser) {
       await member.createUser()
@@ -347,10 +347,8 @@ async function createUsersForMembers(number, queue, excluded) {
     }
   }
 
-  console.log(`${created} < ${members.length}`)
   if (created < members.length) {
     await createUsersForMembers(members.length - created, queue, excludedEmails)
-    console.log("run the show again")
   }
 
   return queue
@@ -388,6 +386,54 @@ function exportMembersVotingListsInteraction() {
 
       return exportMembersVotingLists()
     })
+}
+
+function memberResendNewUserAccountInformationInteraction() {
+  return inquirer.prompt([{
+    type: 'confirm',
+    name: 'resend',
+    default: false,
+    message: "This process will resend a member's new user account information, are you sure you wish to continue?",
+  }]).then((answer) => {
+    if (!answer.resend) {
+      return Promise.reject(new Error("cancelled"))
+    }
+
+    const questions = [
+      {
+        type: 'input',
+        name: 'memberEmail',
+        message: 'Member email (member.email): '
+      }
+    ]
+
+    return inquirer.prompt(questions)
+  }).then((answer) => {
+    if (!answer.memberEmail) {
+      return Promise.reject(new Error("Missing memberEmail"))
+    }
+
+    const include = [
+      {
+        model: models.User,
+        as: "user",
+        where: { username: answer.memberEmail }
+      }
+    ]
+
+    return models.Member.findOne({where: {email: answer.memberEmail}, include: include})
+  }).then(async (member) => {
+    if (!member) {
+      return Promise.reject(new Error("Member not found"))
+    }
+
+    return await emailService.importedUserPasswordResetKeyReminder(member)
+  }).then((success) => {
+    console.log("Member new user account information resent.")
+  }).catch((error) => {
+    console.log(error.message)
+    console.log(error.stack)
+  })
 }
 
 function memberDeleteInteraction() {
@@ -615,6 +661,24 @@ function importMembersInteraction(){
   })
 }
 
+async function memberEmailCaseCheck() {
+  await models.Member.findAll({ attributes: [
+    'id',
+    'email'
+  ]}).then((members) => {
+    console.log(`Checking ${members.length} records.`)
+    for (const member of members) {
+      let i = 0
+
+      while (i <= member.email.length) {
+        if (member.email !== member.email.toLowerCase()) {
+          console.log(`Upper case email, member.id: ${member.id}, member.email: ${member.email}`)
+        }
+        i++
+      }
+    }
+  })
+}
 
 function interactionManager() {
   const choices = [
@@ -638,6 +702,14 @@ function interactionManager() {
     {
       name: 'Create users for members',
       value: 'members_create_users',
+    },
+    {
+      name: 'Resend member new user account information',
+      value: 'member_resend_new_user_account_information',
+    },
+    {
+      name: 'Check member emails for uppercase chars',
+      value: 'member_email_case_check',
     },
     new inquirer.Separator(),
     {
@@ -669,8 +741,12 @@ function interactionManager() {
         return importMembersInteraction()
       case "members_create_users":
         return createUsersForMembersInteraction()
+      case "member_resend_new_user_account_information":
+        return memberResendNewUserAccountInformationInteraction()
       case "member_delete":
         return memberDeleteInteraction()
+      case "member_email_case_check":
+        return memberEmailCaseCheck()
       case "exit":
         process.exit(0)
         break

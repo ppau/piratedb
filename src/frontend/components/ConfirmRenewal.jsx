@@ -64,7 +64,7 @@ export default class ConfirmRenewal extends Component {
         </div>
         <div className="declaration">
           <p>
-            I wish to renew my membership for Pirate Party Australia. I have read and understand the <b><a href="https://pirateparty.org.au/constitution/" target="_blank">Pirate Party Australia Constitution </a></b> and agree with its platform and principles, and to the best of my ability work to uphold and promote them.
+            I wish to renew my membership for Pirate Party Australia. I have read and understand the <b><a href="https://pirateparty.org.au/constitution/" target="_blank">Pirate Party Australia Constitution</a></b> and agree with its platform and principles, and to the best of my ability work to uphold and promote them.
           </p>
         </div>
         <label className={!!this.state.errors.consent ? "invalid" : ""} id="checkbox_declaration">
@@ -88,7 +88,8 @@ export default class ConfirmRenewal extends Component {
             <br/>
             <b>Postal address: </b> {this.getFullAddress(this.props.member.postalAddress)} <br/>
             <b>Email: </b> {this.props.member.email} <br/>
-            <b>Phone: </b> {this.props.member.primaryPhoneNumber} <br/>
+            <b>Phone: </b> {this.props.member.primaryPhoneNumber} <br/><br/>
+            <button onClick={(e) => { this.props.history.push('/account/update') }} className="nav-button">Edit your details</button>
             <br/>
           </div>
         </div>

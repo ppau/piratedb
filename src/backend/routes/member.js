@@ -7,6 +7,7 @@ const logger = require("../lib/logger")
 const { requireAuth, requireAdmin } = require("../providers/auth")
 const { json, RequestError } = require("../providers/view-helpers")
 const emailService = require("../services/emailService")
+const authUtils = require('../utils/auth')
 
 const BaseRoutes = require("../lib/routes").BaseRoutes
 const endpoints = require("../lib/routes").endpoints
@@ -106,6 +107,10 @@ class MemberRoutes extends BaseRoutes {
 
     // Client sent a password, so we assume client side validation confirmed pw == confirmed pw.
     const validationErrors = memberValidator.isValidWithPasswords(data, data.password, data.password)
+
+    if (await authUtils.usernameNotAvailable(data.email)) {
+      validationErrors.push("Email address cannot be used at this time.")
+    }
 
     // Handle any validation errors
     if (validationErrors.length){

@@ -62,10 +62,11 @@ export default class SignIn extends Component {
     }
 
     const payload = {
-      username: this.state.username,
+      username: _.trim(this.state.username),
       password: this.state.password,
       history: this.props.history
     }
+
     this.props.executeSignIn(payload)
   }
 

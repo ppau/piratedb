@@ -94,7 +94,7 @@ export default class EditMemberForm extends Component {
       })
       .catch((ex) => {
         this.setState({
-          errors: ["Sorry, we could not register you this time. Please try again, or " +
+          errors: ["Sorry, we could not update your details at this time. Please try again, or " +
           "contact us at membership@pirateparty.org.au."]
         })
       })

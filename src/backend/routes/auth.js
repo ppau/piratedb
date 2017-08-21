@@ -91,14 +91,13 @@ class AuthenticationRoutes extends BaseRoutes {
     let resetPasswordKey = resetPasswordKeyValidator.value
     let user = await User.findByUsername(username)
 
-    let errors = []
-
-    if (!memberValidator.isValidPassword(newPassword)){
-      errors.push("Invalid new password.")
-    }
+    const errors = []
+    const validPassword = memberValidator.isValidPassword(newPassword)
 
     if (!user) {
       errors.push("An unknown error occurred.")  // don't leak user existence.
+    } else if (!validPassword) {
+      errors.push("Invalid new password.")
     } else {
       await User.resetPassword(username, newPassword, resetPasswordKey)
         .then((user) => {

@@ -4,6 +4,7 @@ import moment from 'moment'
 import { Grid, Cell, Button, DataTable, Icon, TableHeader, Tabs, Tab, IconButton } from 'react-mdl'
 import { Link } from 'react-router-dom'
 import GridLoading from '../GridLoading.jsx'
+import ViewDataDialogContainer from '../../containers/ViewDataDialogContainer.jsx'
 
 import { INVOICE_TYPES, INVOICE_STATUSES } from '../../../lib/invoiceConstants'
 
@@ -39,6 +40,8 @@ export default class Secretary extends Component {
         size: 15,
       },
       searchFieldValue: "",
+      viewDataDialogIsOpen: false,
+      invoiceDialogData: {},
     }
 
     this.render = this.render.bind(this)
@@ -51,6 +54,8 @@ export default class Secretary extends Component {
     this.handleSearchFieldChange = this.handleSearchFieldChange.bind(this)
     this.handleApplySearch = this.handleApplySearch.bind(this)
     this.handleClearSearch = this.handleClearSearch.bind(this)
+    this.handleOpenViewDataDialog = this.handleOpenViewDataDialog.bind(this)
+    this.handleCloseViewDataDialog = this.handleCloseViewDataDialog.bind(this)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -105,21 +110,28 @@ export default class Secretary extends Component {
       })
   }
 
-  actionRender(id) {
+  actionRender(invoice) {
     return (
       <div>
+        <Button key="view-invoice-details" raised colored onClick={(e) => {
+          this.handleOpenViewDataDialog(e, invoice)
+        }}>Details</Button>
+        &nbsp;&nbsp;
+
         <a
-          disabled className="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
-          href={'/admin/invoices/invoice-view/' + id}
+          disabled={!invoice.data.memberId}
+          className="mdl-button mdl-js-button mdl-button--raised mdl-button--colored"
+          href={`/admin/secretary/member-view/${invoice.data.memberId}`}
           onClick={(e) => {
             if (e.button === 0) {
               e.preventDefault()
-              this.props.history.push('/admin/invoices/invoice-view/' + id)
+              this.props.history.push(`/admin/secretary/member-view/${invoice.data.memberId}`)
               return false
             }
           }}>
-          Details
+          View member
         </a>
+
       </div>
     )
   }
@@ -175,6 +187,19 @@ export default class Secretary extends Component {
     }
   }
 
+  handleOpenViewDataDialog(e, invoice) {
+    this.setState({
+      viewDataDialogIsOpen: true,
+      invoiceDialogData: invoice,
+    })
+  }
+
+  handleCloseViewDataDialog(e) {
+    this.setState({
+      viewDataDialogIsOpen: false
+    })
+  }
+
   render() {
     if (this.state.errors && this.state.errors.length > 0) {
       return (
@@ -192,7 +217,7 @@ export default class Secretary extends Component {
     }
 
     return (
-      <Grid className="mdlwp-1600">
+      <Grid className="">
         <Cell col={12}>
 
           <div className="form-container" style={{textAlign: "center"}}>
@@ -242,6 +267,7 @@ export default class Secretary extends Component {
                 rows={this.state.invoices.map(function(invoice) {
                   return {
                     invoice: invoice,
+                    invoiceActions: invoice,
                     id: invoice.id,
                     totalAmountInCents: invoice.totalAmountInCents,
                     totalAmount: (invoice.totalAmountInCents / 100).toLocaleString("en-US", {style: "currency", currency: "AUD"}),
@@ -256,17 +282,23 @@ export default class Secretary extends Component {
                   }
                 })}
               >
-                <TableHeader name="memberReference">Reference</TableHeader>
-                <TableHeader style={{width: "250px"}} name="createdAt" cellFormatter={(createdAt) => {
-                  return moment(createdAt).format("YYYY-MM-DD hh:mm:ss a") }}>Created
+                <TableHeader style={{minWidth: 200}} name="memberReference">Reference</TableHeader>
+                <TableHeader style={{minWidth: 200}} name="createdAt" cellFormatter={(createdAt) => {
+                  return (
+                    <div>
+                      <span>{moment(createdAt).format("YYYY-MM-DD")}</span><br/>
+                      <span>{moment(createdAt).format("hh:mm:ss a")}</span>
+                    </div>
+                  )
+                }}>Created
                 </TableHeader>
-                <TableHeader style={{width: "250px"}} name="paymentDate" cellFormatter={(paymentDate) => {
-                  return !paymentDate ? "unpaid" : moment(paymentDate).format("YYYY-MM-DD hh:mm:ss a") }}>Payment date
+                <TableHeader style={{minWidth: 120}} name="paymentDate" cellFormatter={(paymentDate) => {
+                  return !paymentDate ? "unpaid" : moment(paymentDate).format("YYYY-MM-DD") }}>Payment date
                 </TableHeader>
-                <TableHeader name="paymentMethod">Payment method</TableHeader>
-                <TableHeader name="paymentStatus">Payment status</TableHeader>
-                <TableHeader name="totalAmount">Amount</TableHeader>
-                <TableHeader style={{width: 270}} name="invoice" cellFormatter={(invoice) => {
+                <TableHeader style={{minWidth: 120}} name="paymentMethod">Payment method</TableHeader>
+                <TableHeader style={{width: 120}} name="paymentStatus">Payment status</TableHeader>
+                <TableHeader style={{width: 80}} name="totalAmount">Amount</TableHeader>
+                <TableHeader name="invoice" cellFormatter={(invoice) => {
                   return (
                       <dl style={{margin: 0}}>
                         <dt style={{marginTop: 0}}>Member ID</dt>
@@ -276,7 +308,7 @@ export default class Secretary extends Component {
                       </dl>
                   )
                 }}>IDs</TableHeader>
-                <TableHeader name="id" cellFormatter={(id) => this.actionRender(id)}>Actions</TableHeader>
+                <TableHeader name="invoiceActions" cellFormatter={(invoice) => this.actionRender(invoice)}>Actions</TableHeader>
               </DataTable>
             </Cell>
           </Grid>
@@ -286,7 +318,19 @@ export default class Secretary extends Component {
             : null }
 
         </Cell>
+
+        <ViewDataDialogContainer
+          data={this.state.invoiceDialogData}
+          title="Data for invoice"
+          collapsed={false}
+          isOpen={this.state.viewDataDialogIsOpen}
+          onClose={this.handleCloseViewDataDialog}
+          ref={(elem) => {
+            this.viewDataPasswordDialog = elem
+          }} />
+
       </Grid>
+
     )
   }
 }

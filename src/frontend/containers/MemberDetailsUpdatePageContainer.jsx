@@ -12,4 +12,5 @@ const MemberDetailsUpdatePageContainer = connect(
     return bindActionCreators(authActions, dispatch)
   }
 )(MemberDetailsUpdatePage)
+
 export default MemberDetailsUpdatePageContainer

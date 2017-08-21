@@ -46,6 +46,8 @@ module.exports = (sequelize, DataTypes) => {
   })
 
   Member.MEMBERSHIP_STATUSES = MEMBERSHIP_STATUSES
+  Member.MEMBERSHIP_TYPES = MEMBERSHIP_TYPES
+
   Member.EXCLUDED_CURRENT_STATUSES = EXCLUDED_CURRENT_STATUSES
   Member.ACTIVE_STATUSES = ACTIVE_STATUSES
   Member.VOTING_MEMBERSHIP_TYPES = VOTING_MEMBERSHIP_TYPES
@@ -122,7 +124,7 @@ module.exports = (sequelize, DataTypes) => {
       return {
         givenNames: data.givenNames,
         surname: data.surname,
-        email: data.email,
+        email: data.email.toLowerCase(),
         dateOfBirth: moment.utc(data.dateOfBirth, "DD/MM/YYYY").toDate(),
         gender: data.gender,
         primaryPhoneNumber: data.primaryPhoneNumber,
@@ -177,7 +179,7 @@ module.exports = (sequelize, DataTypes) => {
         .then(async (member) => {
           // Check if the email has change
           if (emailChanged) {
-            const emailIsAvailable = await authUtils.usernameInUse(memberData.email, user, member) === false
+            const emailIsAvailable = await authUtils.usernameNotAvailable(memberData.email, user, member) === false
 
             if (!emailIsAvailable) {
               return Promise.reject(new authUtils.UsernameInUseError("Changed email cannot be used."))
@@ -284,7 +286,8 @@ module.exports = (sequelize, DataTypes) => {
       let promise = User.register(data.email, data.password, {transaction: t})
 
       return Promise.join(promise, (user) => {
-        let member = setupMember(data)
+        const member = setupMember(data)
+
         member.userId = user.id
         return member
       })
@@ -432,6 +435,10 @@ module.exports = (sequelize, DataTypes) => {
 
   Member.prototype.getIsActiveStatus = function() {
     return ACTIVE_STATUSES.includes(this.status)
+  }
+
+  Member.prototype.getIsExpired = function() {
+    return this.expiresOn < moment.utc()
   }
 
   return Member

@@ -14,6 +14,7 @@ const everyMinute = "00 */1 * * * *"
 async function worker() {
   const sixtyDaysFromNow = moment.utc().add(60, "days").toDate()
   const fourteenDaysAgo = moment.utc().add(-14, "days").toDate()
+  const fiveDaysAgo = moment.utc().add(-5, "days").toDate()
   let sentCount = 0
 
   const members = await Member.withActiveStatusAndEnabledUserExpiringBefore(sixtyDaysFromNow)
@@ -21,7 +22,8 @@ async function worker() {
   logger.notice("member-renewal-service", `Processing ${members.length} member renewal reminders.`)
 
   for (const member of members) {
-    if (member.lastRenewalReminder > fourteenDaysAgo) {
+    // if (member.lastRenewalReminder > fourteenDaysAgo) {
+    if (member.lastRenewalReminder > fiveDaysAgo) {
       continue
     }
 
@@ -31,7 +33,7 @@ async function worker() {
     }
 
     try {
-      if (member.getIsActiveStatus()) {
+      if (member.getIsActiveStatus() && !member.getIsExpired()) {
         emailService.memberRenewalReminder(member)
       } else {
         emailService.memberExpiredReminder(member)

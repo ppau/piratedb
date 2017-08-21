@@ -76,6 +76,7 @@ class AdminRoutes extends BaseRoutes {
         "postalAddress",
         "residentialAddress",
         "isPostalAddressDifferent",
+        "userId",
       ],
       assoc: {
         postalAddress: {
@@ -147,6 +148,7 @@ class AdminRoutes extends BaseRoutes {
         "expiresOn",
         "verified",
         "isPostalAddressDifferent",
+        "userId",
       ],
       include: [
         {model: Address, as: "postalAddress"},
@@ -408,9 +410,16 @@ class AdminRoutes extends BaseRoutes {
         const memberSerialized = new Serializer(Member, memberScheme).serialize(member)
 
         memberSerialized.statusHuman = member.getStatusText()
+
+        const serializedUser = member.user ? new Serializer(User, AdminRoutes.userScheme).serialize(member.user) : null
+
+        if (serializedUser) {
+          serializedUser.hasActiveResetPasswordKey = member.user.resetPasswordKey !== null
+        }
+
         return {
           member: memberSerialized,
-          user: member.user ? new Serializer(User, AdminRoutes.userScheme).serialize(member.user) : null
+          user: serializedUser
         }
       }).catch((ex) => {
         return Sequelize.Promise.reject("An error has occurred while fetching member.")

@@ -7,14 +7,19 @@ export function promiseDispatchFactory({url, payload, pending, fulfilled, reject
   return function(dispatch) {
     dispatch(pending(payload))
 
-    return fetch(url, {
+    const options = {
       method: method,
       credentials: "same-origin",
       headers: {
         'Content-Type': contentType
       },
-      body: JSON.stringify(payload)
-    })
+    }
+
+    if (payload) {
+      options.body = JSON.stringify(payload)
+    }
+
+    return fetch(url, options)
     .then((response) => {
       return response.json().then((json) => ({json: json, response: response}))
     })

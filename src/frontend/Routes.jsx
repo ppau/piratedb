@@ -25,12 +25,12 @@ import MemberDetailsUpdatePageContainer from './containers/MemberDetailsUpdatePa
 import MemberRenewPageContainer from './containers/MemberRenewPageContainer.jsx'
 
 // Admin imports
-import AdminDashboard from './components/administration/AdminDashboard.jsx'
 import Secretary from './components/administration/Secretary.jsx'
 import Treasurer from './components/administration/Treasurer.jsx'
 import Audit from './components/administration/Audit.jsx'
 import Users from './components/administration/Users.jsx'
 import AdminMemberDetailsViewPage from './pages/administration/AdminMemberDetailsViewPage.jsx'
+import AdminDashboardPageContainer from './containers/AdminDashboardPageContainer.jsx'
 
 import RoadmapPage from './pages/RoadmapPage.jsx'
 
@@ -57,11 +57,12 @@ export default class Routes extends Component {
         <Route exact path="/account/notifications" component={ NotificationsPage }/>
 
         // admin views
-        <Route exact path="/admin" component={ AdminDashboard }/>
-        <Route path="/admin/dashboard" component={ AdminDashboard }/>
+        <Route exact path="/admin" component={ AdminDashboardPageContainer }/>
+        <Route path="/admin/dashboard" component={ AdminDashboardPageContainer }/>
 
         <Route exact path="/admin/secretary" component={ Secretary }/>
         <Route path="/admin/secretary/member-view/:id" component={ AdminMemberDetailsViewPage }/>
+        <Route path="/admin/secretary/member-update/:id" component={ MemberDetailsUpdatePageContainer }/>
 
         <Route exact path="/admin/treasurer" component={ Treasurer }/>
         <Route exact path="/admin/users" component={ Users }/>

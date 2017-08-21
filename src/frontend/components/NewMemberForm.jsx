@@ -60,8 +60,11 @@ export default class NewMemberForm extends Component {
     ReactDOM.findDOMNode(this).scrollIntoView()
   }
 
-  nextStep() {
-    this.setState({step: this.state.step + 1})
+  nextStep(payload) {
+    this.setState({
+      step: this.state.step + 1,
+      paymentData: payload
+    })
   }
 
   previousStep() {
@@ -74,6 +77,9 @@ export default class NewMemberForm extends Component {
   }
 
   saveAndContinue(fieldValues) {
+    this.setState({
+      errors: []
+    })
     this.formValues = fieldValues
     this.nextStep()
   }
@@ -102,14 +108,14 @@ export default class NewMemberForm extends Component {
       })
       .catch((ex) => {
         this.setState({
-          errors: ["Sorry, we could not register you this time. Please try again, or " +
+          errors: ["Sorry, we could not process your application at this time. Please try again, or " +
           "contact us at membership@pirateparty.org.au."]
         })
       })
   }
 
   submitPaymentComplete(payload) {
-    this.nextStep()
+    this.nextStep(payload)
   }
 
   getForm() {
@@ -135,7 +141,7 @@ export default class NewMemberForm extends Component {
                         errors={this.state.errors}
                         member={this.formValues} />
       case 5:
-        return <Finished mode="new" email={this.formValues.email} history={this.props.history} />
+        return <Finished paymentData={this.state.paymentData} mode="new" email={this.formValues.email} history={this.props.history} />
     }
   }
 

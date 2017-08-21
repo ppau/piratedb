@@ -66,6 +66,8 @@ export default class MemberDetailsView extends Component {
     this.handleOpenViewDataDialog = this.handleOpenViewDataDialog.bind(this)
     this.handleCloseViewDataDialog = this.handleCloseViewDataDialog.bind(this)
 
+    this.editDetailsButtonOnClick = this.editDetailsButtonOnClick.bind(this)
+
     this.render = this.render.bind(this)
   }
 
@@ -235,11 +237,25 @@ export default class MemberDetailsView extends Component {
         <dt key="account-details-member-id-title">Member UUID</dt>,
         <dd key="account-details-member-id-value">{this.state.member ? this.state.member.id : "None" }</dd>,
         <dt key="account-details-user-id-title">User ID</dt>,
-        <dd key="account-details-user-id-value">{this.state.user ? this.state.user.id : "None"}</dd>
+        <dd key="account-details-user-id-value">{this.state.user ? this.state.user.id : "None"}</dd>,
+        <dt key="account-details-user-has-active-reset-password-key-title">User has active password reset key</dt>,
+        <dd key="account-details-user-has-active-reset-password-key-value">
+          { this.state.user !== null && this.state.user.hasActiveResetPasswordKey
+            ? <Icon name="done"/> : <Icon name="close"/> }
+        </dd>
       ]
 
       return rtn
     }
+  }
+
+  editDetailsButtonOnClick(e) {
+    if (this.state.isAdmin) {
+      this.props.history.push(`/admin/secretary/member-update/${this.state.member.id}`)
+      return
+    }
+
+    this.props.history.push('/account/update')
   }
 
   render() {
@@ -265,7 +281,7 @@ export default class MemberDetailsView extends Component {
 
           <Cell col={2}>
             <div className="nc text-centre" style={{paddingRight: 16}} >
-              <img className="mdl-shadow--2dp" src="/images/profiles/anon.png" />
+              <img className="mdl-shadow--2dp" src="/images/profiles/user-flat.png" />
             </div>
           </Cell>
           <Cell col={6}>
@@ -275,7 +291,7 @@ export default class MemberDetailsView extends Component {
                   {this.state.member.givenNames} {this.state.member.surname}
 
                   <Tooltip label={<span>Edit your details</span>}>
-                    <FABButton onClick={() => { this.props.history.push('/account/update') }} mini colored style={{ marginLeft: "16px"}} className="mdl-button-primary--fab">
+                    <FABButton onClick={this.editDetailsButtonOnClick} mini colored style={{ marginLeft: "16px"}} className="mdl-button-primary--fab">
                       <Icon name="edit" />
                     </FABButton>
                   </Tooltip>
@@ -388,6 +404,10 @@ export default class MemberDetailsView extends Component {
                     <span>{ moment(this.state.member.expiresOn).format("DD/MM/YYYY") }</span>
                     <small> ({ moment(this.state.member.expiresOn).fromNow() })</small>
                   </dd>
+                  <dt>First joined</dt>
+                  <dd>
+                    <span>{ moment(this.state.member.memberSince).format("DD/MM/YYYY") }</span>
+                  </dd>
                 </dl>
               </CardText>
               {this.getMembershipActions()}
@@ -446,10 +466,13 @@ export default class MemberDetailsView extends Component {
             : null }
 
           <ViewDataDialogContainer
-            member={this.state.member}
+            data={this.state.member.data}
+            title="Data for member"
             isOpen={this.state.viewDataDialogIsOpen}
             onClose={this.handleCloseViewDataDialog}
-            ref={(elem) => { this.viewDataPasswordDialog = elem }} />
+            ref={(elem) => {
+              this.viewDataPasswordDialog = elem
+            }} />
 
         </Grid>
       </div>
