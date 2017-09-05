@@ -278,6 +278,7 @@ header, .mdl-layout__drawer {
 .mdl-layout__content {
   display: flex;
   flex-flow: column;
+  flex: 1 0 auto; // fixes footer affixed to bottom in IE11
   background-color: #fcfcfc;
 
   > div {

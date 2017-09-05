@@ -1,12 +1,15 @@
 server {
   listen 80 default_server;
   server_name _;
+  add_header Strict-Transport-Security max-age=31536000;
+
   return 301 https://$host$request_uri;
 }
 
 server {
   listen 443;
   server_name {{ server_name }};
+  add_header Strict-Transport-Security max-age=31536000;
 
   ssl on;
   ssl_certificate {{ https_certs_dir }}/wildcard.pirateparty.org.au.bundle;

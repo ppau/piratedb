@@ -2,6 +2,7 @@
 const moment = require("moment")
 const jpath = require('json-path')
 
+const config = require("../config")
 const { Member } = require("../models")
 const logger = require("../lib/logger")
 const { requireAuth, requireAdmin } = require("../providers/auth")
@@ -49,19 +50,32 @@ class MemberRoutes extends BaseRoutes {
   }
 
   async index(ctx) {
-    await ctx.render("index", {title: "Pirate Party Australia"})
+    await ctx.render("index", {})
   }
 
   async renderNew(ctx) {
-    await ctx.render("index", {title: "Pirate Party Australia"})
+    /* eslint-disable camelcase */
+    const context = ctx.state.context
+
+    // custom meta for signup page
+    const meta = {
+      title: context.meta.sign_up_title,
+      description: context.meta.sign_up_description,
+      twitter_image: context.meta.sign_up_twitter_image,
+      opengraph_image: context.meta.sign_up_opengraph_image,
+    }
+
+    context.meta = Object.assign({}, context.meta, meta)
+
+    await ctx.render("index", {context})
   }
 
   async renderRenew(ctx) {
-    await ctx.render("index", {title: "Pirate Party Australia"})
+    await ctx.render("index", {})
   }
 
   async renderVerify(ctx) {
-      await ctx.render("index", {title: "Pirate Party Australia"})
+    await ctx.render("index", {})
   }
 
   async verify(ctx) {
@@ -166,7 +180,7 @@ class MemberRoutes extends BaseRoutes {
           throw new Error("Invalid post data.")
         }
 
-        return member.membershipRenew()
+        return member.membershipRenew(ctx.state.user)
       })
       .then((member) => {
         ctx.status = 200
@@ -230,7 +244,8 @@ class MemberRoutes extends BaseRoutes {
     logger.info("account-change-password", ctx.state.user.id)
 
     // Required fields
-    let data = {}
+    const data = {}
+
     try {
       data.currentPassword = ctx.request.body.data.currentPassword
       data.newPassword = ctx.request.body.data.newPassword
@@ -256,6 +271,7 @@ class MemberRoutes extends BaseRoutes {
     }
 
     const user = ctx.state.user
+
     await user.checkPasswordPromise(data.currentPassword)
       .then((match) => {
         if (!match){

@@ -3,6 +3,7 @@
  */
 
 import React, { Component } from 'react'
+import moment from 'moment'
 import ConfirmRenewal from '../components/ConfirmRenewal.jsx'
 import Payment from '../components/Payment.jsx'
 import RenewalFinish from '../components/RenewalFinish.jsx'
@@ -15,14 +16,30 @@ export default class MemberRenewPage extends Component {
     this.state = {
       errors: {},
       step: 1,
+      renewalAvailable: false,
+      initialised: props.auth.initialised && props.auth.authenticated,
+    }
+
+    if (props.auth.initialised && props.auth.authenticated) {
+      this.state.renewalAvailable = this.getRenewalAvailable(props.auth.member)
     }
 
     this.confirmMembershipRenewal = this.confirmMembershipRenewal.bind(this)
     this.getForm = this.getForm.bind(this)
     this.nextStep = this.nextStep.bind(this)
+    this.getRenewalAvailable = this.getRenewalAvailable.bind(this)
   }
 
   componentDidMount() {
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (!this.state.initialised && nextProps.auth.initialised && nextProps.auth.authenticated) {
+      this.setState({
+        renewalAvailable: this.getRenewalAvailable(nextProps.auth.member),
+        initialised: nextProps.auth.initialised && nextProps.auth.authenticated,
+      })
+    }
   }
 
   nextStep(payload) {
@@ -90,10 +107,47 @@ export default class MemberRenewPage extends Component {
     }
   }
 
+  getRenewalAvailable(member) {
+    return moment.utc(member.expiresOn).subtract(60, "days") < moment.utc() && member.status === "accepted"
+  }
+
   render() {
-    if (!this.props.auth.initialised) {
+    if (!this.state.initialised) {
       return (
         <GridLoading />
+      )
+    }
+
+    if (!this.state.renewalAvailable) {
+      return (
+        <div className="container">
+          <div id="form" className="form-container">
+            <div className="header">
+            </div>
+            <fieldset>
+              <h1 className="form-title">Renewal not available</h1>
+
+              <div className="form-body">
+                <div className="heading">
+                  <h3 className="sub-title">You don't need to renew your membership at this time.</h3>
+                </div>
+                <div className="navigation">
+                  <button className="nav-button" onClick={() => {
+                    this.props.history.push('/account/details')
+                  }}>
+                    Members area
+                  </button>
+
+                  <button className="nav-button" onClick={() => {
+                    this.props.history.push('/donate')
+                  }}>
+                    Make a donation
+                  </button>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
       )
     }
 

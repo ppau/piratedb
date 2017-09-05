@@ -10,7 +10,8 @@ const models = require("../models")
 const transports = {
   sendmail: require("nodemailer-sendmail-transport"),
   smtp: require("nodemailer-smtp-transport"),
-  stub: config.env == 'development' ? require("nodemailer-stub-transport") : null
+  stub: config.env === 'development' ? require("nodemailer-stub-transport") : null,
+  aws: require('nodemailer-ses-transport'),
 }
 
 if (!config.email.transport) {
@@ -25,7 +26,7 @@ const stubCallback = (error, info) => {
   console.log(info.response.toString())
 }
 
-const organisationName = "Pirate Party Australia"
+const organisationName = config.context.organisation_name
 
 const globalContext = config.email.context
 const appContext = {

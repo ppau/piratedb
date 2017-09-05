@@ -6,7 +6,8 @@ import ConnectedRouterSwitch from './components/ConnectedRouterSwitch.jsx'
 import Finished from './components/Finished.jsx'
 // EndTest imports
 
-import LandingPage from './pages/LandingPage.jsx'
+import LandingPageContainer from './containers/LandingPageContainer.jsx'
+
 import ForgottenPasswordChangePageContainer from './containers/ForgottenPasswordChangePageContainer.jsx'
 import ImportedMemberPasswordChangePageContainer from './containers/ImportedMemberPasswordChangePageContainer.jsx'
 
@@ -30,6 +31,7 @@ import Treasurer from './components/administration/Treasurer.jsx'
 import Audit from './components/administration/Audit.jsx'
 import Users from './components/administration/Users.jsx'
 import AdminMemberDetailsViewPage from './pages/administration/AdminMemberDetailsViewPage.jsx'
+import AdminMemberDetailsUpdatePage from './pages/administration/AdminMemberDetailsUpdatePage.jsx'
 import AdminDashboardPageContainer from './containers/AdminDashboardPageContainer.jsx'
 
 import RoadmapPage from './pages/RoadmapPage.jsx'
@@ -38,10 +40,10 @@ export default class Routes extends Component {
   render() {
     return (
       <ConnectedRouterSwitch>
-        <Route exact path="/" component={ LandingPage }/>
+        <Route exact path="/" component={ LandingPageContainer }/>
         <Route path="/test" component={ Finished }/>
-        <Route exact path="/sign-in" component={ LandingPage }/>
-        <Route exact path="/forgotten-password" component={ LandingPage }/>
+        <Route exact path="/sign-in" component={ LandingPageContainer }/>
+        <Route exact path="/forgotten-password" component={ LandingPageContainer }/>
         <Route exact path="/forgotten-password-change/:resetPasswordKey/:username" component={ ForgottenPasswordChangePageContainer }/>
         <Route exact path="/imported-member-password-change/:resetPasswordKey/:username" component={ ImportedMemberPasswordChangePageContainer }/>
 
@@ -62,7 +64,7 @@ export default class Routes extends Component {
 
         <Route exact path="/admin/secretary" component={ Secretary }/>
         <Route path="/admin/secretary/member-view/:id" component={ AdminMemberDetailsViewPage }/>
-        <Route path="/admin/secretary/member-update/:id" component={ MemberDetailsUpdatePageContainer }/>
+        <Route path="/admin/secretary/member-update/:id" component={ AdminMemberDetailsUpdatePage }/>
 
         <Route exact path="/admin/treasurer" component={ Treasurer }/>
         <Route exact path="/admin/users" component={ Users }/>

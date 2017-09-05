@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Button, Card, CardTitle, CardText, CardActions, Spinner } from 'react-mdl'
 
 import validator from 'validator'
+
 import { Link } from 'react-router-dom'
 import _ from 'lodash'
 
@@ -44,7 +45,8 @@ export default class SignIn extends Component {
   }
 
   isValid() {
-    let errors = {}
+    const errors = {}
+
     if (validator.isEmpty(this.state.username)) {
       errors['username'] = "Email is required"
     }
@@ -64,7 +66,9 @@ export default class SignIn extends Component {
     const payload = {
       username: _.trim(this.state.username),
       password: this.state.password,
-      history: this.props.history
+      history: this.props.history,
+      location: this.props.location,
+      router: this.props.router,
     }
 
     this.props.executeSignIn(payload)

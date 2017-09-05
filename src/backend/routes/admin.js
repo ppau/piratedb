@@ -35,6 +35,7 @@ class AdminRoutes extends BaseRoutes {
         "/admin/statistics": [requireAuth, requireAdmin, this.statistics],
 
         "/admin/secretary/member-view/:id": [requireAuth, requireAdmin, this.index],
+        "/admin/secretary/member-update/:id": [requireAuth, requireAdmin, this.index],
         "/admin/secretary": [requireAuth, requireAdmin, this.index],
 
         //"/admin*": [requireAuth, requireAdmin, this.redirect],
@@ -50,11 +51,11 @@ class AdminRoutes extends BaseRoutes {
   }
 
   async index(ctx) {
-    await ctx.render("admin", {title: "Pirate Party Australia"})
+    await ctx.render("admin", {})
   }
 
   async renderDashboard(ctx) {
-    await ctx.render("admin", {title: "Dashboard"})
+    await ctx.render("admin", {})
   }
 
   static get memberScheme() {
@@ -148,6 +149,7 @@ class AdminRoutes extends BaseRoutes {
         "expiresOn",
         "verified",
         "isPostalAddressDifferent",
+        "data",
         "userId",
       ],
       include: [
@@ -427,9 +429,10 @@ class AdminRoutes extends BaseRoutes {
   }
 
   async memberUpdate(ctx) {
-    // Validate the input
+    const memberData = ctx.request.body.data.member
 
-    const errors = memberValidator.isValidServer(ctx.request.body.data.member)
+    // Validate the input
+    const errors = memberValidator.isValidServer(memberData)
 
     // Handle any errors
     if (errors.length){
@@ -442,15 +445,36 @@ class AdminRoutes extends BaseRoutes {
 
     logger.info("admin-member-update", `Updating userId: ${ctx.params.id}`)
 
+    // Save options
+    const options = {}
+
+    if (ctx.request.body.fields) {
+      options.fields = ctx.request.body.fields
+      options.fields.push('data')
+    }
+
     ctx.body = await Member.findOne(Object.assign({}, AdminRoutes.memberProps, {where: {id: ctx.params.id}}))
       .then((member) => {
+
+        // Add an action for auditing purposes
+        member.addAction(Member.MEMBER_ACTION_TYPES.update, Object.assign({}, memberData), ctx.state.user)
+
+        const residentialAddress = Object.assign(member.residentialAddress, memberData.residentialAddress || {})
+        const postalAddress = Object.assign(member.postalAddress, memberData.postalAddress || {})
+
+        delete memberData.residentialAddress
+        delete memberData.postalAddress
+
+        Object.assign(member, memberData)
+
         return Promise.all([
           member.previous("status"),
-          member.update(ctx.request.body.data.member, {
-          }),
+          member.save(options),
+          residentialAddress.save(),
+          postalAddress.save(),
         ])
       })
-      .spread((previousStatus, member) => {
+      .spread((previousStatus, member, residentialAddress, postalAddress) => {
         // Membership accepted notification
         if (previousStatus === Member.MEMBERSHIP_STATUSES.pending && member.status === Member.MEMBERSHIP_STATUSES.accepted) {
           member.membershipAccepted()
@@ -468,7 +492,8 @@ class AdminRoutes extends BaseRoutes {
         }
 
         return {
-          member: new Serializer(Member, AdminRoutes.memberScheme).serialize(member)
+          member: new Serializer(Member, AdminRoutes.memberScheme).serialize(member),
+          success: true,
         }
       }).catch((error) => {
         logger.error("admin-member-update", 'Error occurred', {exception: error})

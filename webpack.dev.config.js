@@ -12,7 +12,6 @@ module.exports = {
     livereload: 'webpack-dev-server/client?http://localhost:3001/',
     react: 'webpack/hot/only-dev-server',
     main: './src/frontend/index.jsx',
-    // renew: './src/frontend/components/Renew.jsx',
   },
   output: {
     path: path.join(__dirname, 'public', 'javascript'),

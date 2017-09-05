@@ -17,7 +17,9 @@ function requireAuth(ctx, next) {
       return
     }
 
-    ctx.redirect("/sign-in")
+    const path = ctx.url
+
+    ctx.redirect(`/sign-in?redirect=${path}`)
     return
   } else {
     const user = ctx.state.user

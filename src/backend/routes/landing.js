@@ -26,7 +26,7 @@ class LandingRoutes extends BaseRoutes {
   }
 
   async landingPage(ctx) {
-    await ctx.render("index", { title: "Pirate Party Australia" })
+    await ctx.render("index", {})
   }
 }
 

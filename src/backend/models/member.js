@@ -23,6 +23,12 @@ const VOTING_MEMBERSHIP_TYPES = [
   MEMBERSHIP_TYPES.permanentResident,
 ]
 
+const MEMBER_ACTION_TYPES = {
+  new: "new",
+  update: "update",
+  renew: "renew",
+}
+
 module.exports = (sequelize, DataTypes) => {
   const Member = sequelize.define('Member', {
     id: {type: DataTypes.UUID, primaryKey: true},
@@ -52,6 +58,8 @@ module.exports = (sequelize, DataTypes) => {
   Member.ACTIVE_STATUSES = ACTIVE_STATUSES
   Member.VOTING_MEMBERSHIP_TYPES = VOTING_MEMBERSHIP_TYPES
 
+  Member.MEMBER_ACTION_TYPES = MEMBER_ACTION_TYPES
+
   Member.associate = (models) => {
     Member.belongsTo(models.Address, { as: "postalAddress", foreignKey: "postalAddressId" })
     Member.belongsTo(models.Address, { as: "residentialAddress", foreignKey: "residentialAddressId" })
@@ -59,6 +67,12 @@ module.exports = (sequelize, DataTypes) => {
     Member.belongsTo(models.User, { as: "user", foreignKey: "userId" })
   }
 
+  /**
+   * Returns all active status members with a membership expiring before the date parameter and with an enabled user
+   * account.
+   * @param date: selects by those member.expiresOn less than this date parameter.
+   * @returns {Promise.<Array.<Model>>|Array|undefined}
+   */
   Member.withActiveStatusAndEnabledUserExpiringBefore = (date) => {
     const User = require('../models').User
 
@@ -73,6 +87,32 @@ module.exports = (sequelize, DataTypes) => {
         as: "user",
         where: {
           enabled: true,
+        }
+      }]
+    })
+  }
+
+  /**
+   * Returns all active status members with unactivated user accounts.
+   * @returns {Promise.<Array.<Model>>|Array|undefined}
+   */
+  Member.withActiveStatusAndEnabledUserAndUnactivated = () => {
+    const User = require('../models').User
+
+    return Member.findAll({
+      where: {
+        status: { $in: ACTIVE_STATUSES },
+        userId: { $ne: null },
+      },
+      include: [{
+        model: User,
+        as: "user",
+        where: {
+          enabled: true,
+          resetPasswordKey: {
+            $ne: null
+          },
+          lastAuthenticated: null,
         }
       }]
     })
@@ -191,11 +231,13 @@ module.exports = (sequelize, DataTypes) => {
           const residentialAddress = Object.assign(member.residentialAddress, memberData.residentialAddress)
           const postalAddress = Object.assign(member.postalAddress, memberData.postalAddress)
 
+          // Add an action for auditing purposes
+          member.addAction(MEMBER_ACTION_TYPES.update, Object.assign({}, memberData), user)
+
           delete memberData.residentialAddress
           delete memberData.postalAddress
 
           Object.assign(member, memberData)
-
 
           await residentialAddress.save({transaction: t})
           await postalAddress.save({transaction: t})
@@ -286,19 +328,27 @@ module.exports = (sequelize, DataTypes) => {
       let promise = User.register(data.email, data.password, {transaction: t})
 
       return Promise.join(promise, (user) => {
-        const member = setupMember(data)
+        const memberData = setupMember(data)
 
-        member.userId = user.id
-        return member
+        memberData.userId = user.id
+        return memberData
       })
-        .then((member) => {
-          return Member.create(member, {
-            transaction: t,
-            include: [
-              {model: Address, as: 'residentialAddress'},
-              {model: Address, as: 'postalAddress'},
-            ]
-          })
+        .then((memberData) => {
+          return Promise.all([
+            Member.create(memberData, {
+              transaction: t,
+              include: [
+                {model: Address, as: 'residentialAddress'},
+                {model: Address, as: 'postalAddress'},
+              ]
+            }),
+            memberData,
+          ])
+        })
+        .spread((savedMember, memberData) => {
+          // Add an action for auditing purposes
+          savedMember.addAction(MEMBER_ACTION_TYPES.new, Object.assign({}, memberData), null)
+          return savedMember.save({transaction: t})
         })
         .then((savedMember) => {
           return {
@@ -329,6 +379,30 @@ module.exports = (sequelize, DataTypes) => {
           }
         })
     })
+  }
+
+  /**
+   * Records an action performed on a member's data, essentially revisioning.
+   * @param actionType: The type of action being performed.
+   * @param data: The relevant data related to the action.
+   * @param user: The user instance performing this action.
+   */
+  Member.prototype.addAction = function(actionType, data, user) {
+    this.data.actions = this.data.actions || []
+
+    if (Object.keys(MEMBER_ACTION_TYPES).indexOf(actionType) < 0) {
+      throw new Error("Invalid member action type.")
+    }
+
+    const action = {
+      datetime: moment.utc().format(),
+      type: actionType,
+      data: data,
+      userId: user ? user.id : null,
+    }
+
+    this.data.actions.push(action)
+    this.set('data', this.data) // sequelize fails at JSON data changes.
   }
 
   Member.prototype.shouldSendRenewalReminder = function() {
@@ -364,11 +438,15 @@ module.exports = (sequelize, DataTypes) => {
       })
   }
 
-  Member.prototype.membershipRenew = function() {
+  Member.prototype.membershipRenew = function(user) {
     if (!this.memberRenewalOpen()) {
       throw new Error(`Membership renewal is not open for ${this.id}.`)
     }
     this.expiresOn = this.expiresOn > moment.utc() ? moment.utc(this.expiresOn).add(1, "years") : moment.utc().add(1, "years")
+
+    // Add an action for auditing purposes
+    this.addAction(MEMBER_ACTION_TYPES.renew, {type: this.type}, user)
+
     return this.save()
       .then((member) => {
         const emailService = require("../services/emailService")

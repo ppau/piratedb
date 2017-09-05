@@ -24,7 +24,7 @@ export default class Details extends Component {
       invalidFields: [],
       errorNames: [],
       parentErrors: props.parentErrors || [],
-      showPostalAddress: false,
+      showPostalAddress: !!props.formValues.isPostalAddressDifferent,
       residentialCountry: 'Australia',
       postalCountry: 'Australia'
     }
@@ -313,8 +313,10 @@ export default class Details extends Component {
             </div>
             <label>
               <input type="checkbox" onChange={this.handlePostalAddress}
-                     defaultValue={this.props.formValues.differentPostal} ref="differentPostal"
-                     value="Yes"/>
+                     ref="differentPostal"
+                     value="Yes"
+                     checked={this.state.showPostalAddress}
+                     />
               My postal address is <b>different</b>.
             </label>
           </div>

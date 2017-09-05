@@ -23,7 +23,12 @@ export function signInRequest(payload) {
 
 export function signInResponse(payload, requestPayload) {
   if (payload.authenticated) {
-    if (payload.user && payload.user.data && payload.user.data.isAdmin) {
+    // redirect if there's a route match
+    const redirect = new URLSearchParams(requestPayload.location.search).get('redirect')
+
+    if (redirect) {
+      requestPayload.history.push(redirect)
+    } else if (payload.user && payload.user.data && payload.user.data.isAdmin) {
       requestPayload.history.push('/admin/dashboard')
     } else {
       requestPayload.history.push('/account/details')

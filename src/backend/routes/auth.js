@@ -37,7 +37,7 @@ class AuthenticationRoutes extends BaseRoutes {
 
   async renderSignIn(ctx) {
     // ctx.body = ctx.isoRender("member-form", { mode: "new" })
-    await ctx.render("index", { title: "Membership application form" })
+    await ctx.render("index", {})
   }
 
   async signIn(ctx, next) {
@@ -78,18 +78,18 @@ class AuthenticationRoutes extends BaseRoutes {
   }
 
   async renderForgottenPasswordChange(ctx) {
-    await ctx.render("index", {title: "Forgotten password"})
+    await ctx.render("index", {})
   }
 
   async forgottenPasswordChange(ctx) {
-    let usernameValidator = ctx.checkBody('/data/username', jpath.create).get(0).notEmpty("Username required.").len(0, 255)
-    let resetPasswordKeyValidator = ctx.checkBody('/data/resetPasswordKey', jpath.create).get(0).notEmpty("Password reset key required.").len(0, 255)
-    let newPasswordValidator = ctx.checkBody('/data/newPassword', jpath.create).get(0).notEmpty("New password required.").len(0, 255)
+    const usernameValidator = ctx.checkBody('/data/username', jpath.create).get(0).notEmpty("Username required.").len(0, 255)
+    const resetPasswordKeyValidator = ctx.checkBody('/data/resetPasswordKey', jpath.create).get(0).notEmpty("Password reset key required.").len(0, 255)
+    const newPasswordValidator = ctx.checkBody('/data/newPassword', jpath.create).get(0).notEmpty("New password required.").len(0, 255)
 
-    let username = usernameValidator.value
-    let newPassword = newPasswordValidator.value
-    let resetPasswordKey = resetPasswordKeyValidator.value
-    let user = await User.findByUsername(username)
+    const username = usernameValidator.value
+    const newPassword = newPasswordValidator.value
+    const resetPasswordKey = resetPasswordKeyValidator.value
+    const user = await User.findByUsername(username)
 
     const errors = []
     const validPassword = memberValidator.isValidPassword(newPassword)
@@ -123,7 +123,7 @@ class AuthenticationRoutes extends BaseRoutes {
   }
 
   async renderForgottenPassword(ctx) {
-    await ctx.render("index", {title: "Forgotten password"})
+    await ctx.render("index", {})
   }
 
   async forgottenPassword(ctx, next) {

@@ -168,7 +168,9 @@ export default class Secretary extends Component {
   }
 
   handleApplySearch(event) {
-    this.loadInvoices()
+    this.setState({
+      pagination: Object.assign({}, this.state.pagination, {page: 1}),
+    }, this.loadInvoices)
   }
 
   handleClearSearch(event) {
@@ -181,10 +183,11 @@ export default class Secretary extends Component {
         size: 15,
       },
       searchFieldValue: "",
+    }, () => {
+      if (this.state.activeTabId === 0) {
+        this.loadInvoices()
+      }
     })
-    if (this.state.activeTabId === 0) {
-      setTimeout(this.loadInvoices, 500)
-    }
   }
 
   handleOpenViewDataDialog(e, invoice) {

@@ -98,7 +98,7 @@
     "newline-after-var": [2, "always"],
     "no-array-constructor": 2,
     "no-continue": 0,
-    "no-inline-comments": 1,
+    "no-inline-comments": 0,
     "no-lonely-if": 2,
     "no-multiple-empty-lines": 2,
     "no-nested-ternary": 2,

@@ -3,11 +3,9 @@
  *  - includes some libs for webpack
  *  - creates the app store and fires up our routes
  */
-
-
 import React from 'react'
 import { createStore, applyMiddleware, combineReducers } from 'redux'
-import thunk from 'redux-thunk';
+import thunk from 'redux-thunk'
 import { createLogger } from 'redux-logger'
 import { render } from 'react-dom'
 import { Provider } from 'react-redux'
@@ -20,12 +18,20 @@ import reducers from './reducers/index'
 
 import AppContainer from './containers/AppContainer.jsx'
 
-// Needed for onTouchTap
-injectTapEventPlugin();
+// URLSearchParams polyfill
+import 'url-search-params-polyfill'
 
+import 'babel-polyfill'
+
+// Needed for onTouchTap
+injectTapEventPlugin()
+
+// eslint-disable-next-line no-extend-native
 String.prototype.toTitleCase = function() {
-    return this.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
-};
+  return this.replace(/\w\S*/g, function(txt) {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+  })
+}
 
 // webpack includes for bundling
 import '../../node_modules/react-mdl/extra/material'
@@ -49,6 +55,10 @@ const store = createStore(
   }),
   applyMiddleware(...middleware)
 )
+
+const loading = document.getElementById('loading')
+
+loading.outerHTML = ''
 
 render((
   <Provider store={store}>

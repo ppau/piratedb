@@ -1,7 +1,6 @@
 
 const { CronJob } = require("cron")
 const moment = require("moment")
-const co = require("co")
 const uuid = require("node-uuid")
 
 const { EmailTemplate, Member } = require("../models")
@@ -64,7 +63,7 @@ function start() {
   const job = new CronJob({
     cronTime: everyDayAt0730,
     //cronTime: everyMinute,
-    onTick: co.wrap(worker),
+    onTick: worker,
     start: false,
   })
 

@@ -436,6 +436,45 @@ function memberResendNewUserAccountInformationInteraction() {
   })
 }
 
+
+function membersResendNewUserAccountInformationToAllUnactivatedInteraction() {
+  return inquirer.prompt([{
+    type: 'confirm',
+    name: 'resend',
+    default: false,
+    message: "This process will resend all members' new user account information to unactivated accounts, are you sure you wish to continue?",
+  }]).then(async (answer) => {
+    if (!answer.resend) {
+      return Promise.reject(new Error("cancelled"))
+    }
+
+    const sent = []
+    const members = await models.Member.withActiveStatusAndEnabledUserAndUnactivated()
+
+    try {
+      for (const member of members) {
+        await emailService.importedUserPasswordResetKeyReminder(member)
+        sent.push(member.email)
+
+        if (sent.length % 100 === 0) {
+          console.log(`Emailed ${sent.length} of ${members.length}...`)
+        }
+      }
+    } catch (error) {
+      console.log("An error occurred. Emails were sent to:")
+      console.log(sent)
+      throw error
+    }
+
+    return members.length
+  }).then((count) => {
+    console.log(`${count} new user account information emails sent to unactivated members.`)
+  }).catch((error) => {
+    console.log(error.message)
+    console.log(error.stack)
+  })
+}
+
 function memberDeleteInteraction() {
   return inquirer.prompt([{
     type: 'confirm',
@@ -699,6 +738,7 @@ function interactionManager() {
       name: 'Import members',
       value: 'members_import',
     },
+    new inquirer.Separator(),
     {
       name: 'Create users for members',
       value: 'members_create_users',
@@ -706,6 +746,10 @@ function interactionManager() {
     {
       name: 'Resend member new user account information',
       value: 'member_resend_new_user_account_information',
+    },
+    {
+      name: 'Resend ALL member new user account information to unactivated accounts',
+      value: 'members_resend_new_user_account_information_to_unactivated',
     },
     {
       name: 'Check member emails for uppercase chars',
@@ -743,6 +787,8 @@ function interactionManager() {
         return createUsersForMembersInteraction()
       case "member_resend_new_user_account_information":
         return memberResendNewUserAccountInformationInteraction()
+      case "members_resend_new_user_account_information_to_unactivated":
+        return membersResendNewUserAccountInformationToAllUnactivatedInteraction()
       case "member_delete":
         return memberDeleteInteraction()
       case "member_email_case_check":

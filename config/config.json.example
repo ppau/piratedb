@@ -13,6 +13,19 @@
     },
     "www": {
       "port": 3000
-    }
+    },
+    "context": {
+      "organisation_name": "Your organisation",
+      "application_name": "Members area",
+      "application_url": "http://localhost:3000/",
+      "meta": {
+        "description": "Member engagement platform for Your organisation.",
+        "logo": "/images/social/your_organsation/logo.png",
+        "twitter_handle": "@your_organsation",
+        "twitter_image": "/images/social/your_organsation/general_t.png",
+        "opengraph_image": "/images/social/your_organsation/general_og.png",
+        "facebook_admins": ""
+      }
+    },
   }
 }

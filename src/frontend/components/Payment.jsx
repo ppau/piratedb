@@ -269,7 +269,7 @@ export default class Payment extends Component {
               ) : (
                 <Button type="submit" id="payment-continue-button"
                         disabled={this.state.continueButtonDisabled}
-                        textContent="Continue"/>
+                        textContent="Confirm"/>
               )}
             </div>
           </div>

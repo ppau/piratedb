@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import moment from 'moment'
 
 import { Grid, Cell, Button, DataTable, Icon, TableHeader, Tabs, Tab, IconButton } from 'react-mdl'
+import ViewDataDialogContainer from '../../containers/ViewDataDialogContainer.jsx'
 import { Link } from 'react-router-dom'
 import GridLoading from '../GridLoading.jsx'
 
@@ -35,6 +36,8 @@ export default class Audit extends Component {
         size: 15,
       },
       searchFieldValue: "",
+      viewDataDialogIsOpen: false,
+      auditDialogData: {},
     }
 
     this.render = this.render.bind(this)
@@ -46,6 +49,9 @@ export default class Audit extends Component {
     this.handleSearchFieldChange = this.handleSearchFieldChange.bind(this)
     this.handleApplySearch = this.handleApplySearch.bind(this)
     this.handleClearSearch = this.handleClearSearch.bind(this)
+
+    this.handleOpenViewDataDialog = this.handleOpenViewDataDialog.bind(this)
+    this.handleCloseViewDataDialog = this.handleCloseViewDataDialog.bind(this)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -97,11 +103,11 @@ export default class Audit extends Component {
       })
   }
 
-  actionRender(id) {
+  actionRender(logEntry) {
     return (
       <div>
-        <Button raised disabled colored onClick={() => {
-          //this.props.history.push('/admin/audit/log-view/' + id)
+        <Button raised colored onClick={(e) => {
+          this.handleOpenViewDataDialog(e, logEntry)
         }}>Details</Button>
       </div>
     )
@@ -128,7 +134,9 @@ export default class Audit extends Component {
   }
 
   handleApplySearch(event) {
-    this.loadLogs()
+    this.setState({
+      pagination: Object.assign({}, this.state.pagination, {page: 1}),
+    }, this.loadLogs)
   }
 
   handleClearSearch(event) {
@@ -139,6 +147,19 @@ export default class Audit extends Component {
         size: 15,
       },
       searchFieldValue: "",
+    }, this.loadLogs)
+  }
+
+  handleOpenViewDataDialog(e, logEntry) {
+    this.setState({
+      viewDataDialogIsOpen: true,
+      auditDialogData: logEntry,
+    })
+  }
+
+  handleCloseViewDataDialog(e) {
+    this.setState({
+      viewDataDialogIsOpen: false
     })
   }
 
@@ -207,6 +228,7 @@ export default class Audit extends Component {
                     message: logEntry.message,
                     severity: logEntry.severity,
                     meta: logEntry.meta,
+                    logEntry: logEntry
                   }
                 })}
               >
@@ -215,7 +237,7 @@ export default class Audit extends Component {
                 <TableHeader style={{width: "250px"}} name="action">Action</TableHeader>
                 <TableHeader name="message">Message</TableHeader>
 
-                <TableHeader style={{width: "150px"}} name="id" cellFormatter={(id) => this.actionRender(id)}>Actions</TableHeader>
+                <TableHeader style={{width: "150px"}} name="logEntry" cellFormatter={(logEntry) => this.actionRender(logEntry)}>Actions</TableHeader>
               </DataTable>
             </Cell>
           </Grid>
@@ -225,6 +247,16 @@ export default class Audit extends Component {
             : null }
 
         </Cell>
+
+        <ViewDataDialogContainer
+          data={this.state.auditDialogData}
+          title="Data for log event"
+          collapsed={false}
+          isOpen={this.state.viewDataDialogIsOpen}
+          onClose={this.handleCloseViewDataDialog}
+          ref={(elem) => {
+            this.viewDataPasswordDialog = elem
+          }} />
       </Grid>
     )
   }

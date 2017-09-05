@@ -65,7 +65,7 @@ process.on("unhandledRejection", (error) => {
 require("koa-ejs")(app, {
   root: path.join(__dirname, "../frontend/views"),
   layout: false,
-  cache: !isDevelopment
+  cache: !isDevelopment,
 })
 
 // querystrings
@@ -124,6 +124,17 @@ const User = require("./models").User
 passport.use(User.createStrategy())
 passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
+
+// Application state context
+app.use(async (ctx, next) => {
+  const context = Object.assign({}, config.context)
+
+  context.meta = context.meta ? Object.assign({}, context.meta) : {}
+
+  ctx.state.title = `${context.organisation_name} - ${context.application_name}`
+  ctx.state.context = context
+  return next()
+})
 
 // Application routes
 const routes = require("./routes")

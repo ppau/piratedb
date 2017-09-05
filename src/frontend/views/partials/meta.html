@@ -1,0 +1,35 @@
+
+	<!-- Search Engine -->
+	<% if (context.meta.description) { %><meta name="description" content="<%= context.meta.description %>"><% } %>
+	<% if (context.meta.logo) { %><meta name="image" content="<% if (context.application_url) { %><%= context.application_url %><% } %><%= context.meta.logo %>"><% } %>
+
+	<!-- Schema.org for Google -->
+	<% if (context.organisation_name && context.application_name) { %><meta itemprop="name" content="<%= context.organisation_name %> - <%= context.application_name %>"><% } %>
+	<% if (context.meta.description) { %><meta itemprop="description" content="<%= context.meta.description %>"><% } %>
+	<% if (context.meta.logo) { %><meta itemprop="image" content="<% if (context.application_url) { %><%= context.application_url %><% } %><%= context.meta.logo %>"><% } %>
+
+	<!-- Twitter -->
+	<meta name="twitter:card" content="summary_large_image">
+	<% if (context.meta.title) { %>
+	<meta name="twitter:title" content="<%= context.meta.title %>">
+	<% } else if (context.organisation_name && context.application_name) { %>
+	<meta name="twitter:title" content="<%= context.organisation_name %> - <%= context.application_name %>">
+	<% } %>
+
+	<% if (context.meta.description) { %><meta name="twitter:description" content="<%= context.meta.description %>"><% } %>
+	<% if (context.meta.twitter_handle) { %><meta name="twitter:site" content="<%= context.meta.twitter_handle %>"><% } %>
+	<% if (context.meta.twitter_image) { %><meta name="twitter:image:src" content="<% if (context.application_url) { %><%= context.application_url %><% } %><%= context.meta.twitter_image %>"><% } %>
+
+	<!-- Open Graph general (Facebook, Pinterest & Google+) -->
+	<% if (context.meta.title) { %>
+	<meta name="og:title" content="<%= context.meta.title %>">
+	<% } else if (context.organisation_name && context.application_name) { %>
+	<meta name="og:title" content="<%= context.organisation_name %> - <%= context.application_name %>">
+	<% } %>
+
+	<% if (context.meta.description) { %><meta name="og:description" content="<%= context.meta.description %>"><% } %>
+	<% if (context.meta.opengraph_image) { %><meta name="og:image" content="<% if (context.application_url) { %><%= context.application_url %><% } %><%= context.meta.opengraph_image %>"><% } %>
+	<% if (context.application_url) { %><meta name="og:url" content="<%= context.application_url %>"><% } %>
+	<% if (context.organisation_name && context.application_name) { %><meta name="og:site_name" content="<%= context.organisation_name %> - <%= context.application_name %>"><% } %>
+	<% if (context.meta.facebook_admins) { %><meta name="fb:admins" content="<%= context.meta.facebook_admins %>"><% } %>
+	<meta name="og:type" content="website">
